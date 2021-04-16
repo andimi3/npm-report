@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+    </head>
+    <body>
+
+        <input placeholder="enter name" id = "name" />
+        <button id = "submitName">Enter Name</button>
+
+        <div style = "bottom: 0; position: fixed; border: 1px solid black; width: 300px; height: 600px; overflow: scroll; right: 0; padding-right: 6px; margin-bottom: 10px; margin-right: 10px;">
+        <div id = "messages" style = "padding: 13px">
+        </div>
+        <input id = "myMessage" style = "bottom: 0; position: fixed; border-color:1px solid black; width: 300px; height: 30px; right: 0; margin-bottom: 10px; margin-right: 10px;" placeholder = "please enter your message">
+        <button id = "sendMessage" style = "bottom: 0">send message</button>
+
+    </div>
+
+        <script>
+
+            let conn = null;
+
+            let gName = null;
+
+            document.getElementById("submitName").onclick = () => { beginChat(document.getElementById("name").value); }
+
+            beginChat = (name) => {
+
+                //when i enter new name i want to close an existing
+
+                gName = name;
+
+                try {
+                    
+                    conn.close();
+
+                } catch {
+
+                    console.log("no connection yet");
+
+                }
+
+                conn = new WebSocket(`ws://localhost:8082?employee=${name}`); //either client or employee ... passcode on employee
+
+                listen();
+
+            }
+
+        listen = () => {
+
+            conn.onmessage = (e) => {
+
+                if(e.data === "Unfortunatley, there is no employee online to answer your questions...") {
+                    console.log(e.data);
+                    return;
+                }
+
+                let response = e.data.split("-")[1];
+
+                if(response === "fromMe") {
+                    document.getElementById("messages").innerHTML += `
+                    <p style = "margin-left: 5px; display: block;"> Employee:  ${e.data.split("-")[0]} </p>
+                    `;
+                }
+
+                if(response === "fromThem") {
+                    document.getElementById("messages").innerHTML += `
+                    <p style = "margin-left: 5px; display: block;"> Me:  ${e.data.split("-")[0]} </p>
+                    `;
+                }
+
+            };
+
+        }
+
+        document.getElementById("sendMessage").onclick = () => { 
+            sendMessage(document.getElementById("myMessage").value);
+        }
+
+        sendMessage = (v) => {
+            conn.send(v);
+        }
+
+        </script>
+
+    </body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+        <style>
+
+            body{margin-top:20px;}
+
+            .chat-online {
+                color: #34ce57
+            }
+            
+            .chat-offline {
+                color: #e4606d
+            }
+            
+            .chat-messages {
+                display: flex;
+                flex-direction: column;
+                max-height: 500px;
+                overflow-y: scroll
+            }
+            
+            .chat-message-left,
+            .chat-message-right {
+                display: flex;
+                flex-shrink: 0
+            }
+            
+            .chat-message-left {
+                margin-right: auto
+            }
+            
+            .chat-message-right {
+                flex-direction: row-reverse;
+                margin-left: auto
+            }
+            .py-3 {
+                padding-top: 1rem!important;
+                padding-bottom: 1rem!important;
+            }
+            .px-4 {
+                padding-right: 1.5rem!important;
+                padding-left: 1.5rem!important;
+            }
+            .flex-grow-0 {
+                flex-grow: 0!important;
+            }
+            .border-top {
+                border-top: 1px solid #dee2e6!important;
+            }       
+
+        </style>     
+
+    </head>
+
+    <body>
+
+        <main class="content">
+            <div class="container p-0">
+                
+                <div class="card">
+                    <div class="row g-0">
+                        <div class="col-12 col-lg-5 col-xl-3 border-right">
+        
+                            <div class="px-4 d-none d-md-block">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <input id = "searchBar" type="text" class="form-control my-3" placeholder="Search...">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- client side people -->
+
+                            <div id = "clientSidePeople">
+        
+                            <!-- <div class="list-group-item list-group-item-action border-0">
+                                <div class="badge bg-success float-right">5</div>
+                                <div class="d-flex align-items-start">
+                                    <img src="https://bootdey.com/img/Content/avatar/avatar5.png" class="rounded-circle mr-1" alt="Vanessa Tucker" width="40" height="40">
+                                    <div class="flex-grow-1 ml-3">
+                                        Vanessa Tucker
+                                        <div class="small"><span class="fas fa-circle chat-online"></span> Online</div>
+                                    </div>
+                                </div>
+                            </div> -->
+
+                            </div>
+
+                            <!-- client side people -->
+        
+                        <hr class="d-block d-lg-none mt-1 mb-0">
+                        </div>
+                        <div class="col-12 col-lg-7 col-xl-9">
+                            <div class="py-2 px-4 border-bottom d-none d-lg-block">
+                                <div class="d-flex align-items-center py-1">
+                                    <div class="position-relative">
+                                        <img src="https://bootdey.com/img/Content/avatar/avatar3.png" class="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40">
+                                    </div>
+                                    <div class="flex-grow-1 pl-3">
+                                        <strong id = "mainName">Sharon Lessman</strong>
+                                        <div class="text-muted small"><em id = "mainTyping">Typing...</em></div>
+                                    </div>
+                                    <div>
+                                        <button id = "export" class="btn btn-primary btn-sm mr-1 px-3 topLevelButtons">Export</button>
+                                        <button id = "block" class="btn btn-info btn-sm mr-1 px-3 d-none d-md-inline-block topLevelButtons">Block</button>
+                                        <button id = "merge" class="btn btn-light border btn-sm px-3 topLevelButtons">Merge offline conversation</button>
+                                        <button id = "delete" class="btn btn-danger border btn-sm px-3 topLevelButtons">Delete All</button>
+                                    </div>
+                                </div>
+                            </div>
+        
+                            <div class="position-relative">
+
+                                <!-- messages -->
+
+                                <div class="chat-messages p-4" id = "messagesByName">
+
+                                    <!-- <div class="chat-message-left pb-4">
+                                        <div>
+                                            <img src="https://bootdey.com/img/Content/avatar/avatar3.png" class="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40">
+                                            <div class="text-muted small text-nowrap mt-2">2:34 am</div>
+                                        </div>
+                                        <div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
+                                            <div class="font-weight-bold mb-1">Sharon Lessman</div>
+                                            Sit meis deleniti eu, pri vidit meliore docendi ut, an eum erat animal commodo.
+                                        </div>
+                                    </div> -->
+
+                                </div>
+
+                                <!-- messages -->
+
+                            </div>
+        
+                            <div class="flex-grow-0 py-3 px-4 border-top">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Type your message" id = "myMessage">
+                                </div>
+                                <br>
+                                <button class="btn btn-primary" id = "sendMessage">Send</button>
+                            </div>
+        
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>        
+
+        
+        <script>
+
+            socket = (() => {
+
+                console.log("page has been refreshed");
+                    
+                let employeePassword = "employee";
+                let clientArray = []; //for adding and removing
+                let messageArray = []; //for viewing messages
+                let employeeResourceId = null;//for messages
+                let currentClientId = null; //for checkin if on client screen while i message them so i can append element and move down
+                let mergeSafe = []; //clients who are offline whos data you can merge with an online client. (incase they left)
+                let blocked = []; //people i have blocked from sending messages
+                let conn = new WebSocket(`ws://localhost:8082?employee=${employeePassword}`); //new socket
+
+                conn.onmessage = (e) => {
+
+                    //if client connects
+                    if(e.data.split("-")[0] === "addToArray") { 
+                        clientArray.push(parseInt(e.data.split("-")[1]));
+                        elem("add", e.data.split("-")[1], e.data.split("-")[2]);
+                        console.log("client connected: " + e.data.split("-")[1]);
+                        clientArray.length === 1 ? switchClient(parseInt(e.data.split("-")[1])) : console.log("there are clients to select from");
+                        return;
+                    }
+
+                    //if client loses connection
+                    if(e.data.split("-")[0] === "removeFromArray") { 
+                        clientArray.splice(clientArray.indexOf(parseInt(e.data.split("-")[1])), 1);
+                        elem("remove", e.data.split("-")[1], null);
+                        console.log("client disconnected: " + e.data.split("-")[1]);
+                        return;
+                    }
+
+                    //if employee gets connected <- for messages
+                    if(e.data.split("-")[0] === "employeeConnected") { 
+                        employeeResourceId = parseInt(e.data.split("-")[1]);
+                        console.log("employee connected: " + employeeResourceId);
+                        return;
+                    }      
+
+                    //you have blocked this person from sending messages
+                    if(blocked.includes(e.data.split("-")[1])) {
+                        return;
+                    }
+
+                    //if the client is typing
+                    if(e.data.split("-")[0] === "37uiudnjd" && currentClientId === e.data.split("-")[1]) { 
+                        if(parseInt(document.getElementById("mainTyping").innerText.trim().length) === 3) { document.getElementById("mainTyping").innerText = "";  }
+                        document.getElementById("mainTyping").innerText += ".";
+                        return;
+                    }
+
+                    var today = new Date();
+                    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
+                    //if a message push the values to an array of objects
+                    messageArray.push({
+                        clientId: e.data.split("-")[1], 
+                        message: e.data.split("-")[0], 
+                        employeeId: e.data.split("-")[2],
+                        time: time
+                    });
+
+                    //if you are on the persons screen who sent a message move down
+                    if(currentClientId === parseInt(e.data.split("-")[1]) || (e.data.split("-")[2] !== "fromThem" && currentClientId === parseInt(e.data.split("-")[1]))) {
+
+                        //from me
+                        if(e.data.split("-")[2] !== "fromThem") {
+                            document.getElementById("messagesByName").innerHTML += `
+                            <div class="chat-message-right pb-4">
+                                <div>
+                                    <img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="rounded-circle mr-1" alt="Chris Wood" width="40" height="40">
+                                    <div class="text-muted small text-nowrap mt-2">${time}</div>
+                                    </div>
+                                <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
+                                    <div class="font-weight-bold mb-1">You</div>
+                                    ${e.data.split("-")[0]}
+                                </div>
+                            </div>
+                            `;
+                        }
+
+                        //from them
+                        if(e.data.split("-")[2] === "fromThem") {
+                            document.getElementById("messagesByName").innerHTML += `
+                            <div class="chat-message-left pb-4">
+                                <div>
+                                    <img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="rounded-circle mr-1" alt="Chris Wood" width="40" height="40">
+                                    <div class="text-muted small text-nowrap mt-2">${time}</div>
+                                    </div>
+                                <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
+                                    <div class="font-weight-bold mb-1">Client</div>
+                                    ${e.data.split("-")[0]}
+                                </div>
+                            </div>
+                            `;
+                        }
+
+                        var element = document.getElementById("messagesByName");
+                        element.scrollTop = element.scrollHeight;
+                        return;
+
+                    }
+
+                    //increase number for on message if not on client screen
+                    if(e.data.split("-")[2] === "fromThem") { document.getElementById(`${e.data.split("-")[1]}-chatCount`).innerText = parseInt(document.getElementById(`${e.data.split("-")[1]}-chatCount`).innerText.trim()) + 1; }
+
+                };
+
+                elem = (decision, id, name) => {
+
+                    if(decision === "add") {
+                        document.getElementById("clientSidePeople").innerHTML += `
+                        <div id = "${id}-identitySet" onclick = "switchClient(${id})" class="list-group-item list-group-item-action border-0">
+                                <div id = "${id}-chatCount" class="badge bg-success float-right">0</div>
+                                <div class="d-flex align-items-start">
+                                    <img src="https://bootdey.com/img/Content/avatar/avatar5.png" class="rounded-circle mr-1" alt="Vanessa Tucker" width="40" height="40">
+                                    <div class="flex-grow-1 ml-3">
+                                        <span id = "${id}-clientName" >${name.trim()}</span>
+                                    <div class="small"><span class="fas fa-circle chat-online"></span><b id = "${id}-online">Online</b></div>
+                                    </div>
+                                </div>
+                            </div>                        
+                        `;
+                    }
+
+                    if(decision === "remove") {
+                        try {
+                            document.getElementById(`${id}-online`).innerText = "offline";
+                            let elemName = document.getElementById(`${id}-clientName`).innerText.trim();
+                            mergeSafe.push({name: elemName, id: id});
+                        } catch {
+                            console.log("initial connection");
+                        }
+                    }
+
+                }
+
+                switchClient = (id) => {
+
+                    currentClientId = id;
+
+                    document.getElementById(`${id}-chatCount`).innerText = 0;
+
+                    document.getElementById("messagesByName").innerHTML = "";
+
+                    document.getElementById("mainName").innerText = document.getElementById(`${id}-clientName`).innerText;
+
+                    document.getElementById("mainTyping").innerText = "";
+
+                    for(let i = 0; i < messageArray.length; i++) {
+
+                        //message coming from me - right side -- can just do if (employee id) === instead of this
+                        if(messageArray[i].employeeId !== "fromThem" && parseInt(messageArray[i].clientId) === currentClientId) {
+                            document.getElementById("messagesByName").innerHTML += `
+                            <div class="chat-message-right pb-4">
+                                <div>
+                                    <img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="rounded-circle mr-1" alt="Chris Wood" width="40" height="40">
+                                    <div class="text-muted small text-nowrap mt-2">${messageArray[i].time}</div>
+                                    </div>
+                                <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
+                                    <div class="font-weight-bold mb-1">You</div>
+                                    ${messageArray[i].message}
+                                </div>
+                            </div>`;
+                        }
+                        
+                        //message coming from them - left side
+                        if(messageArray[i].employeeId === "fromThem" && parseInt(messageArray[i].clientId) === currentClientId) {
+                            document.getElementById("messagesByName").innerHTML += `
+                            <div class="chat-message-left pb-4">
+                                <div>
+                                    <img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="rounded-circle mr-1" alt="Chris Wood" width="40" height="40">
+                                    <div class="text-muted small text-nowrap mt-2">${messageArray[i].time}</div>
+                                    </div>
+                                <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
+                                    <div class="font-weight-bold mb-1">Client</div>
+                                    ${messageArray[i].message}
+                                </div>
+                            </div> `;
+                        }
+
+                    }
+
+                    var element = document.getElementById("messagesByName");
+                    element.scrollTop = element.scrollHeight;
+
+                }
+
+               let searchbar = document.getElementById("searchBar");
+               searchbar.onkeyup = () => { search(this.value); }
+               search = (v) => {
+                 //iterate throug class elements and display the correct ones///
+                } 
+
+                let tlb = document.getElementsByClassName("topLevelButtons");
+                for(let i = 0; i < tlb.length; i++) {
+                    tlb.onclick = () => { tLF(this.id);  } 
+                }
+
+                tLF = (value) => {
+
+                   // current cleint id
+
+                    switch(value) {
+                        case "export":
+
+                        console.log("delete and export to database");
+                        break;
+                        case "delete":
+                        console.log("delete everything about the person");
+                        break;
+                        case "merge":
+                        console.log("merge there information eith an offlines information");
+                        break;
+                        case "block":
+                        console.log("block this person");
+                        break;
+                    }
+
+                }
+
+                //connection error
+
+                conn.onerror = (e) => {
+                    alert("ERROR CONNECTING" + e);
+                }
+
+                //sending message
+
+                document.getElementById("sendMessage").onclick = () => { 
+                    sendMessage(document.getElementById("myMessage"));
+                }
+
+                sendMessage = (v) => {
+                    conn.send(`${v.value}-${currentClientId}-${employeePassword}`);
+                    v.value = "";
+                }
+
+            })();
+
+
+        </script>
+
+
+    </body>
+</html>
