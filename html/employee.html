@@ -184,7 +184,7 @@
                 console.log("page has been refreshed");
                 
                 //socket stuff
-                let employeePassword = "employee";
+                let employeePassword = "employee"; //employee password for connection employee. should match server
                 let clientArray = []; //for adding and removing
                 let messageArray = []; //for viewing messages
                 let employeeResourceId = null;//for messages
@@ -230,7 +230,7 @@
                     }      
 
                     //you have blocked this person from sending messages
-                    if(blocked.includes(e.data.split("-")[1])) {
+                    if(blocked.includes(parseInt(e.data.split("-")[1]))) {
                         return;
                     }
 

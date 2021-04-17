@@ -7,6 +7,7 @@ use Ratchet\ConnectionInterface;
 //if you want to do this the usual way... add { x:y,x:y,x:y } inside of spl object (this is just a tut and i am not using a lot of data because i do not need to)
 //also, if you want the standard for creating rooms, use wamp server. its much easier
 //also, session data can be passed either by the sessid from your http server and generated on your tcp server(here) for insertions OR just use symphony. they have a built in library for grabbing sessions OR use zeromq(or something like that) to broadcast to your tcp server from your http server where you can pass in your sessions[dont quote me on this]. however this uses a conn->resource id that is hidden
+//if you want to store the messages in a db as you go, you could just insert first, grab last id, check on pull if its you, and if it is you push db last_id to socket message. then you can remove that value...(aajax or zeroMq or whatever its called)
 //only down side to this is the "-" <-- you wouldnt use this traditionally but it works here. just escape if they pass that in as there name on the client or add some code to let them
 
 class Chat implements MessageComponentInterface {
