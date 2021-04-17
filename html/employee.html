@@ -412,7 +412,7 @@
                                     });
                                 }
                             }
-                            if(tempExportedMessages.length === 0) { document.getELementById("tlError").innerText = "There is no conversation to export in this thread!"; }
+                            if(tempExportedMessages.length === 0) { document.getELementById("tlError").innerText = "There is no conversation to export in this thread!"; return; }
                             exportToDatabase();
                         break;
 
@@ -421,7 +421,7 @@
                         break;
 
                         case "merge":
-                            if(mergeSafe.length === 0) { document.getELementById("tlError").innerText = "There are no offline conversations to merge"; }
+                            if(mergeSafe.length === 0) { document.getELementById("tlError").innerText = "There are no offline conversations to merge"; return; }
                             tempMergeIds = [];
                             document.getElementById("mergeBody").innerHTML = "";
                             for(let i = 0; i < mergeSafe.length; i++) {
