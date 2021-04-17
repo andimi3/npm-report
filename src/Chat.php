@@ -59,7 +59,7 @@ class Chat implements MessageComponentInterface {
 
             //if there is no employee online, send client message saying the following
             $conn->send("Unfortunatley, there is no employee online to answer your questions..."); 
-            //$conn->close();
+            $conn->close();
 
     }
 
@@ -115,7 +115,6 @@ class Chat implements MessageComponentInterface {
         if($conn->resourceId == $this->employeResourceId) {
             foreach ($this->clients as $client) {
                     $this->clients->detach($client);
-                    $this->clients[$client]->close();
             }
             return;
         }
@@ -125,13 +124,11 @@ class Chat implements MessageComponentInterface {
             if($this->clients[$client] == "employee") { 
                 $client->send("removeFromArray-".$conn->resourceId);
                 $this->clients->detach($conn);
-                $conn->close();
                 return;
             }
         }
 
         echo "error: employee not online and person disconnected OR THIS IS THERE FIRST ATTEMPT CONNECTION";
-        $conn->close();
 
     }
 
