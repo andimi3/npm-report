@@ -412,7 +412,7 @@
                                     });
                                 }
                             }
-                            if(tempExportedMessages.length === 0) { document.getELementById("tlError").innerText = "There is no conversation to export in this thread!"; return; }
+                            if(tempExportedMessages.length === 0) { document.getElementById("tlError").innerText = "There is no conversation to export in this thread!"; return; }
                             exportToDatabase();
                         break;
 
@@ -421,7 +421,7 @@
                         break;
 
                         case "merge":
-                            if(mergeSafe.length === 0) { document.getELementById("tlError").innerText = "There are no offline conversations to merge"; return; }
+                            if(mergeSafe.length === 0) { document.getElementById("tlError").innerText = "There are no offline conversations to merge"; return; }
                             tempMergeIds = [];
                             document.getElementById("mergeBody").innerHTML = "";
                             for(let i = 0; i < mergeSafe.length; i++) {
@@ -441,11 +441,12 @@
                             if(blocked.includes(currentClientId)) { blocked.splice(blocked.indexOf(currentClientId), 1); document.getElementById(`${currentClientId}-blocked`).innerText = "";  }; //add this id
                             blocked.push(currentClientId); document.getElementById(`${currentClientId}-blocked`).innerText = "blocked";
                         break;
+
                     }
 
                 }
 
-                //merge offline people with either another offline person or usually an online person [p.s --- this is how github does it... good luck mike. you fina need it]
+                //merge offline people with either another offline person or usually an online person [p.s --- this is how github does it... good luck mike.
 
                 document.getElementsById("mergeSubmit").onclick = merge;
 
