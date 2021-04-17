@@ -111,6 +111,7 @@ class Chat implements MessageComponentInterface {
             foreach ($this->clients as $client) {
                     $this->clients->detach($client);
             }
+            return;
         }
 
         //if client disconnects while employee online, send employee resource id to update dasboard
@@ -134,6 +135,7 @@ class Chat implements MessageComponentInterface {
             foreach ($this->clients as $client) {
                     $this->clients->detach($client);
             }
+            return;
         }
 
         //if client error, rmeove array on employee end and update dashboard
