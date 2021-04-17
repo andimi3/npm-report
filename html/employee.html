@@ -220,7 +220,7 @@
 
                     //if client loses connection
                     if(e.data.split("-")[0] === "removeFromArray") { 
-                        alert(e.data.split("-")[1]);
+                        alert(e.data.split("-")[1] + "removed");
                         clientArray.splice(clientArray.indexOf(parseInt(e.data.split("-")[1])), 1);
                         elem("remove", e.data.split("-")[1], null);
                         console.log("client disconnected: " + e.data.split("-")[1]);
@@ -247,13 +247,14 @@
                         return;
                     }
 
-                    //BUG. when refresh screen and employee init new socket. when first client join i add in. when second client join. first client gets removed from clientArray? for every new client the previous gets removed on conn.close() <--- fix this
+                    //BUG. when refresh screen and employee init new socket. when first client join i add in. when second client join. first client gets removed from clientArray? for every new client the previous gets removed on conn.close() <--- fix this ACTUALLY IT JUST DISCONNECTS EVERYONE AT ONCE DUMMY
+                    //bug is happening when client reconnects from a closes employee connection. they are connected, employee disconnects, they reconnect and bump last person off
 
                     //if there data isnt found in any array that means i have removed the client
-                    // if((!clientArray.includes(parseInt(e.data.split("-")[1]))) && (!blocked.includes(parseInt(e.data.split("-")[1]))) && (!mergeSafe.includes(parseInt(e.data.split("-")[1])))) {
-                    //     console.log("cleint array: ------------ " + clientArray + "---- deleted" + parseInt(e.data.split("-")[1]));
-                    //     return;
-                    // }
+                    if((!clientArray.includes(parseInt(e.data.split("-")[1]))) && (!blocked.includes(parseInt(e.data.split("-")[1]))) && (!mergeSafe.includes(parseInt(e.data.split("-")[1])))) {
+                        console.log("cleint array: ------------ " + clientArray + "---- deleted" + parseInt(e.data.split("-")[1]));
+                        return;
+                    }
 
                     var today = new Date();
                     var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
@@ -545,5 +546,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
+
+        
     </body>
 </html>

@@ -59,7 +59,7 @@ class Chat implements MessageComponentInterface {
 
             //if there is no employee online, send client message saying the following
             $conn->send("Unfortunatley, there is no employee online to answer your questions..."); 
-            $conn->close();
+            //$conn->close();
 
     }
 
