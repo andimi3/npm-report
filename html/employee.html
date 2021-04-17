@@ -158,7 +158,8 @@
             socket = (() => {
 
                 console.log("page has been refreshed");
-                    
+                
+                //socket stuff
                 let employeePassword = "employee";
                 let clientArray = []; //for adding and removing
                 let messageArray = []; //for viewing messages
@@ -167,6 +168,16 @@
                 let mergeSafe = []; //clients who are offline whos data you can merge with an online client. (incase they left)
                 let blocked = []; //people i have blocked from sending messages
                 let conn = new WebSocket(`ws://localhost:8082?employee=${employeePassword}`); //new socket
+
+                //search through search bar
+                let searchbar = document.getElementById("searchBar");
+                let clientNames = document.getElementsByClassName("clientNames");
+                let hideElements = document.getElementsByClassName("hideElements");
+
+                //click on top level button and change
+                let tlb = document.getElementsByClassName("topLevelButtons");
+                let exportation = [];
+                let mergeTemp = [];                
 
                 conn.onmessage = (e) => {
 
@@ -267,12 +278,12 @@
 
                     if(decision === "add") {
                         document.getElementById("clientSidePeople").innerHTML += `
-                        <div id = "${id}-identitySet" onclick = "switchClient(${id})" class="list-group-item list-group-item-action border-0">
+                        <div id = "${id}-identitySet" onclick = "switchClient(${id})" class="list-group-item list-group-item-action border-0 hideElements">
                                 <div id = "${id}-chatCount" class="badge bg-success float-right">0</div>
                                 <div class="d-flex align-items-start">
                                     <img src="https://bootdey.com/img/Content/avatar/avatar5.png" class="rounded-circle mr-1" alt="Vanessa Tucker" width="40" height="40">
                                     <div class="flex-grow-1 ml-3">
-                                        <span id = "${id}-clientName" >${name.trim()}</span>
+                                        <span class = "clientNames" id = "${id}-clientName" >${name.trim()}</span>
                                     <div class="small"><span class="fas fa-circle chat-online"></span><b id = "${id}-online">Online</b></div>
                                     </div>
                                 </div>
@@ -343,16 +354,17 @@
 
                 }
 
-               let searchbar = document.getElementById("searchBar");
-               searchbar.onkeyup = () => { search(this.value); }
-               search = (v) => {
-                 //iterate throug class elements and display the correct ones///
-                } 
+                //search bar stuff
 
-                let tlb = document.getElementsByClassName("topLevelButtons");
-                for(let i = 0; i < tlb.length; i++) {
-                    tlb.onclick = () => { tLF(this.id);  } 
+                searchbar.onkeyup = function() { search(this.value.trim().toLowerCase()); } 
+                function search(v) {
+                    if(v === "") { for(let i = 0; i < clientNames.length; i++) { hideElements[i].style.display = "block";  }; return; };
+                    for(let i = 0; i < clientNames.length; i++) { if(clientNames[i].innerText.trim().toLowerCase().includes(v)) { hideElements[i].style.display = "block"; } else { hideElements[i].style.display = "none"; } };
                 }
+
+                //top level stuff 
+
+                for(let i = 0; i < tlb.length; i++) { tlb.onclick = () => { tLF(this.id); } }
 
                 tLF = (value) => {
 
@@ -360,16 +372,20 @@
 
                     switch(value) {
                         case "export":
-                        console.log("delete and export to database");
+                        console.log("export");
+                        //push messages to temp array and send to database
                         break;
                         case "delete":
                         console.log("delete everything about the person");
+                        //remove everything and delete element
                         break;
                         case "merge":
                         console.log("merge there information eith an offlines information");
+                        //pull modal up and check off all offline users that you want to merge messages with the current live user
                         break;
                         case "block":
-                        console.log("block this person");
+                        //add a blocked tag on bottom
+                        blocked.push(currentClientId);
                         break;
                     }
 
