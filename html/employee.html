@@ -110,7 +110,7 @@
                                     <div>
                                         <button id = "export" class="btn btn-primary btn-sm mr-1 px-3 topLevelButtons">Export</button>
                                         <button id = "block" class="btn btn-info btn-sm mr-1 px-3 d-none d-md-inline-block topLevelButtons">Block</button>
-                                        <button id = "merge" class="btn btn-light border btn-sm px-3 topLevelButtons">Merge offline conversation</button>
+                                        <button id = "merge" class="btn btn-light border btn-sm px-3 topLevelButtons">Merge offline conversations</button>
                                         <button id = "delete" class="btn btn-danger border btn-sm px-3 topLevelButtons">Delete All</button>
                                     </div>
                                 </div>
@@ -191,7 +191,7 @@
                 let clientArray = []; //for adding and removing
                 let messageArray = []; //for viewing messages
                 let employeeResourceId = null;//for messages
-                let currentClientId = null; //for checkin if on client screen while i message them so i can append element and move down
+                let currentClientId = null; //for checkin if on client screen while i message them so i can append element and move down - state of most functions
                 let mergeSafe = []; //clients who are offline whos data you can merge with an online client. (incase they left)
                 let blocked = []; //people i have blocked from sending messages
                 let conn = new WebSocket(`ws://localhost:8082?employee=${employeePassword}`); //new socket
@@ -214,12 +214,13 @@
                         clientArray.push(parseInt(e.data.split("-")[1]));
                         elem("add", e.data.split("-")[1], e.data.split("-")[2]);
                         console.log("client connected: " + e.data.split("-")[1]);
-                        clientArray.length === 1 ? switchClient(parseInt(e.data.split("-")[1])) : console.log("there are clients to select from");
+                        clientArray.length === 1 ? switchClient(e.data.split("-")[1]) : console.log("there are clients to select from");
                         return;
                     }
 
                     //if client loses connection
                     if(e.data.split("-")[0] === "removeFromArray") { 
+                        alert(e.data.split("-")[1]);
                         clientArray.splice(clientArray.indexOf(parseInt(e.data.split("-")[1])), 1);
                         elem("remove", e.data.split("-")[1], null);
                         console.log("client disconnected: " + e.data.split("-")[1]);
@@ -245,6 +246,14 @@
                         document.getElementById("mainTyping").innerText += ".";
                         return;
                     }
+
+                    //BUG. when refresh screen and employee init new socket. when first client join i add in. when second client join. first client gets removed from clientArray? for every new client the previous gets removed on conn.close() <--- fix this
+
+                    //if there data isnt found in any array that means i have removed the client
+                    // if((!clientArray.includes(parseInt(e.data.split("-")[1]))) && (!blocked.includes(parseInt(e.data.split("-")[1]))) && (!mergeSafe.includes(parseInt(e.data.split("-")[1])))) {
+                    //     console.log("cleint array: ------------ " + clientArray + "---- deleted" + parseInt(e.data.split("-")[1]));
+                    //     return;
+                    // }
 
                     var today = new Date();
                     var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
@@ -291,6 +300,8 @@
                             </div>
                             `;
                         }
+
+                        console.log("cleint array: ------------ " + clientArray);
 
                         var element = document.getElementById("messagesByName");
                         element.scrollTop = element.scrollHeight;
@@ -341,7 +352,7 @@
 
                 switchClient = (id) => {
 
-                    currentClientId = id;
+                    currentClientId = parseInt(id);
 
                     document.getElementById(`${id}-chatCount`).innerText = 0;
 
@@ -458,14 +469,17 @@
 
                 //merge offline people with either another offline person or usually an online person [p.s --- this is how github does it... good luck mike.
 
-                document.getElementById("mergeSubmit").onclick = merge;
+                document.getElementById("mergeSubmit").onclick = () => { merge() };
 
                 merge = () => {
 
                     let checkBoxes = document.getElementsByClassName("pushMergedIds");
                     for(let i = 0; i < checkBoxes.length; i++) {
-                        tempMergeIds.push(parseInt(checkBoxes[i]('.messageCheckbox:checked').value));
+                        if(checkBoxes[i].checked === true) { tempMergeIds.push(parseInt(checkBoxes[i].value)) };
                     }
+
+                    console.log("merged id + " + tempMergeIds);
+                    return;
 
                     for(let i = 0; i < messageArray.length; i++) { 
                         if(tempMergeIds.includes(parseInt(messageArray[i].clientId))) { messageArray[i].clientId = currentClientId; } //this cnges from string to int...doesnt rally matter though... should prob just parseInt on the first pull but im doing something where i dont think i can. f it, it works
@@ -474,8 +488,6 @@
                     for(let i = 0; i < tempMergeIds.length; i++) {
                         deleteThisPerson(tempMergeIds[i]);
                     }
-
-                    //delete from merge safe
 
                     document.getElementById("tlError").innerText = "You have successfully merged!";
                     document.getElementById("tlError").style.color = "green";
@@ -494,7 +506,7 @@
                 }
 
                 //delete this person
-
+                //remove from all data storage, delete element, remove connection
                 deleteThisPerson = (clientId) => {
 
                   //remove element and other stuff
@@ -514,6 +526,7 @@
                 }
 
                 sendMessage = (v) => {
+                    if(blocked.includes(currentClientId)) { return; }
                     conn.send(`${v.value}-${currentClientId}-${employeePassword}`);
                     v.value = "";
                 }
@@ -522,7 +535,7 @@
 
 
             //we're gonna throw em some php and see how they react. lets see all the remarks they make
-            //https://www.youtube.com/watch?v=8E47D7a0o2o
+            //https://www.youtube.com/watch?v=WFoZJrZrL8w
             
 
         </script>
