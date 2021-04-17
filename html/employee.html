@@ -113,8 +113,9 @@
                                         <button id = "merge" class="btn btn-light border btn-sm px-3 topLevelButtons">Merge offline conversation</button>
                                         <button id = "delete" class="btn btn-danger border btn-sm px-3 topLevelButtons">Delete All</button>
                                     </div>
-                                    <p id = "tlError" style = "color: red"></p>
                                 </div>
+                                <br>
+                                <small id = "tlError" style = "color: red"></small>
                             </div>
         
                             <div class="position-relative">
@@ -234,6 +235,7 @@
 
                     //you have blocked this person from sending messages
                     if(blocked.includes(parseInt(e.data.split("-")[1]))) {
+                        console.log("blocked message");
                         return;
                     }
 
@@ -301,8 +303,11 @@
 
                 };
 
+
+
                 elem = (decision, id, name) => {
 
+                    //add client to side bar
                     if(decision === "add") {
                         document.getElementById("clientSidePeople").innerHTML += `
                         <div id = "${id}-identitySet" onclick = "switchClient(${id})" class="list-group-item list-group-item-action border-0 hideElements">
@@ -311,13 +316,14 @@
                                     <img src="https://bootdey.com/img/Content/avatar/avatar5.png" class="rounded-circle mr-1" alt="Vanessa Tucker" width="40" height="40">
                                     <div class="flex-grow-1 ml-3">
                                         <span class = "clientNames" id = "${id}-clientName" >${name.trim()}</span>
-                                    <div class="small"><span class="fas fa-circle chat-online"></span><b id = "${id}-online">Online</b> - <b id = "${id}-blocked"></b></div>
+                                    <div class="small"><span class="fas fa-circle chat-online"></span><b id = "${id}-online">Online</b><b id = "${id}-blocked"></b></div>
                                     </div>
                                 </div>
                             </div>                        
                         `;
                     }
 
+                    //update client to offline and push to merge option
                     if(decision === "remove") {
                         try {
                             document.getElementById(`${id}-online`).innerText = "offline";
@@ -329,6 +335,9 @@
                     }
 
                 }
+
+
+                //switch the client
 
                 switchClient = (id) => {
 
@@ -342,7 +351,7 @@
 
                     document.getElementById("mainTyping").innerText = "";
 
-                    document.getELementById("tlError").innerText = "";
+                    document.getElementById("tlError").innerText = "";
 
                     for(let i = 0; i < messageArray.length; i++) {
 
@@ -389,6 +398,7 @@
 
                 //top level functions
                 for(let i = 0; i < tlb.length; i++) { tlb[i].onclick = function() { tLF(this.id); } }
+
                 function tLF(value) {
 
                     switch(value) {
@@ -412,7 +422,7 @@
                                     });
                                 }
                             }
-                            if(tempExportedMessages.length === 0) { document.getElementById("tlError").innerText = "There is no conversation to export in this thread!"; return; }
+                            if(tempExportedMessages.length === 0) { document.getElementById("tlError").innerText = "There is no conversation to export in this thread!"; document.getElementById("tlError").style.color = "red"; return; }
                             exportToDatabase();
                         break;
 
@@ -421,7 +431,7 @@
                         break;
 
                         case "merge":
-                            if(mergeSafe.length === 0) { document.getElementById("tlError").innerText = "There are no offline conversations to merge"; return; }
+                            if(mergeSafe.length === 0) { document.getElementById("tlError").innerText = "There are no offline conversations to merge"; document.getElementById("tlError").style.color = "red"; return; }
                             tempMergeIds = [];
                             document.getElementById("mergeBody").innerHTML = "";
                             for(let i = 0; i < mergeSafe.length; i++) {
@@ -438,8 +448,8 @@
                         break;
 
                         case "block":
-                            if(blocked.includes(currentClientId)) { blocked.splice(blocked.indexOf(currentClientId), 1); document.getElementById(`${currentClientId}-blocked`).innerText = "";  }; //add this id
-                            blocked.push(currentClientId); document.getElementById(`${currentClientId}-blocked`).innerText = "blocked";
+                            if(blocked.includes(currentClientId)) { blocked.splice(blocked.indexOf(currentClientId), 1); document.getElementById(`${currentClientId}-blocked`).innerText = ""; return;  };
+                            blocked.push(currentClientId); document.getElementById(`${currentClientId}-blocked`).innerText = "-blocked";
                         break;
 
                     }
@@ -448,7 +458,7 @@
 
                 //merge offline people with either another offline person or usually an online person [p.s --- this is how github does it... good luck mike.
 
-                document.getElementsById("mergeSubmit").onclick = merge;
+                document.getElementById("mergeSubmit").onclick = merge;
 
                 merge = () => {
 
@@ -465,6 +475,11 @@
                         deleteThisPerson(tempMergeIds[i]);
                     }
 
+                    //delete from merge safe
+
+                    document.getElementById("tlError").innerText = "You have successfully merged!";
+                    document.getElementById("tlError").style.color = "green";
+
                 }
 
                 //export this conversation to database
@@ -473,13 +488,16 @@
 
                     //push "tempExportedMessages" to database however you wish
 
+                    document.getElementById("tlError").innerText = "You have successfully exported to database!";
+                    document.getElementById("tlError").style.color = "green";
+
                 }
 
                 //delete this person
 
                 deleteThisPerson = (clientId) => {
 
-
+                  //remove element and other stuff
 
                 }
 
@@ -504,6 +522,7 @@
 
 
             //we're gonna throw em some php and see how they react. lets see all the remarks they make
+            //https://www.youtube.com/watch?v=8E47D7a0o2o
             
 
         </script>

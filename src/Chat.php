@@ -75,7 +75,7 @@ class Chat implements MessageComponentInterface {
         $ifEmployeeMessage = explode("-", $msg);
 
         //if message coming from employee
-        if($ifEmployeeMessage[2] && $ifEmployeeMessage[2] == $this->employee) {
+        if(isset($ifEmployeeMessage[2]) && $ifEmployeeMessage[2] == $this->employee) {
             $myMessage = $ifEmployeeMessage[0];
             $clientId = $ifEmployeeMessage[1];
         }    
