@@ -111,6 +111,7 @@ class Chat implements MessageComponentInterface {
 
         //if employee disconnects, disconnect everyone
         if($conn->resourceId == $this->employeResourceId) {
+            echo "employee should be disconnecting all clients and them self (WHY IS IT NOT!)!";
             foreach ($this->clients as $client) {
                 $this->clients->detach($client);
                 $client->close();
@@ -121,6 +122,7 @@ class Chat implements MessageComponentInterface {
         //if client disconnects while employee online, send employee resource id to update dasboard
         foreach ($this->clients as $client) {
             if($this->clients[$client] == "employee") { 
+                //if this client isset in the splobkect remove array. i am not sure why but the client seems not to remove when i refresh my screen causing when a client closes a connection to basically overwrite the connection i had already closed. if i close it...this should not be hit
                 $client->send("removeFromArray-".$conn->resourceId);
                 $this->clients->detach($conn);
                 $conn->close();

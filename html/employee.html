@@ -220,6 +220,7 @@
 
                     //if client loses connection
                     if(e.data.split("-")[0] === "removeFromArray") { 
+                        console.log("client array - - - - - - - - " + clientArray);
                         alert(e.data.split("-")[1] + "removed");
                         clientArray.splice(clientArray.indexOf(parseInt(e.data.split("-")[1])), 1);
                         elem("remove", e.data.split("-")[1], null);
@@ -247,9 +248,7 @@
                         return;
                     }
 
-                    //BUG. when refresh screen and employee init new socket. when first client join i add in. when second client join. first client gets removed from clientArray? for every new client the previous gets removed on conn.close() <--- fix this ACTUALLY IT JUST DISCONNECTS EVERYONE AT ONCE DUMMY
-                    //bug is happening when client reconnects from a closes employee connection. they are connected, employee disconnects, they reconnect and bump last person off
-                    // i am not disconnecting everyone when employee refreshes screen
+                    //BUG: basically when a client disconnects after i have disconnected everyone(from refreshing), they are sending me over an id that i am removing from an array WHEN THEY DISCONNECT. i need to figure out why the conn on their end is still live when i already closed it on my end. its removing clientId random values...
 
                     //if there data isnt found in any array that means i have removed the client
                     if((!clientArray.includes(parseInt(e.data.split("-")[1]))) && (!blocked.includes(parseInt(e.data.split("-")[1]))) && (!mergeSafe.includes(parseInt(e.data.split("-")[1])))) {
