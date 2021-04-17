@@ -150,7 +150,31 @@
                     </div>
                 </div>
             </div>
-        </main>        
+        </main> 
+        
+    <!-- Modal fir top level buttons -->
+
+    <div class="modal fade" id="mergeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            ...
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+        </div>
+    </div>   
+    
+    <!-- Modal fir top level buttons -->
 
         
         <script>
@@ -354,21 +378,17 @@
 
                 }
 
-                //search bar stuff
-
                 searchbar.onkeyup = function() { search(this.value.trim().toLowerCase()); } 
                 function search(v) {
                     if(v === "") { for(let i = 0; i < clientNames.length; i++) { hideElements[i].style.display = "block";  }; return; };
                     for(let i = 0; i < clientNames.length; i++) { if(clientNames[i].innerText.trim().toLowerCase().includes(v)) { hideElements[i].style.display = "block"; } else { hideElements[i].style.display = "none"; } };
                 }
 
-                //top level stuff 
+                for(let i = 0; i < tlb.length; i++) { tlb[i].onclick = function() { tLF(this.id); } }
 
-                for(let i = 0; i < tlb.length; i++) { tlb.onclick = () => { tLF(this.id); } }
+                function tLF(value) {
 
-                tLF = (value) => {
-
-                   // current cleint id
+                    // current cleint id
 
                     switch(value) {
                         case "export":
@@ -382,10 +402,13 @@
                         case "merge":
                         console.log("merge there information eith an offlines information");
                         //pull modal up and check off all offline users that you want to merge messages with the current live user
+                        //when click on box store id... then when click merger search messages... find id in set and update that id to the clientid you are merging.
+                        $('#mergeModal').modal('show');
                         break;
                         case "block":
-                        //add a blocked tag on bottom
+                        if(blocked.includes(currentClientId)) { blocked.splice(blocked.indexOf(currentClientId), 1);  }; //update to nothing then return
                         blocked.push(currentClientId);
+                        //update to blocked
                         break;
                     }
 
