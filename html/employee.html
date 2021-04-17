@@ -2,6 +2,7 @@
 <html>
     <head>
 
+        <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
@@ -112,6 +113,7 @@
                                         <button id = "merge" class="btn btn-light border btn-sm px-3 topLevelButtons">Merge offline conversation</button>
                                         <button id = "delete" class="btn btn-danger border btn-sm px-3 topLevelButtons">Delete All</button>
                                     </div>
+                                    <p id = "tlError" style = "color: red"></p>
                                 </div>
                             </div>
         
@@ -158,17 +160,17 @@
         <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <h5 class="modal-title" id="exampleModalLabel" id = "mergeTitle">Merge offline conversations into one converstation</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
             </div>
-            <div class="modal-body">
-            ...
+            <div class="modal-body" id = "mergeBody">
+            
             </div>
             <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn btn-primary" id = "mergeSubmit">Merge</button>
+            <p style = "color: red">Merging will delete all conversations exept the mergers</p>
             </div>
         </div>
         </div>
@@ -200,8 +202,9 @@
 
                 //click on top level button and change
                 let tlb = document.getElementsByClassName("topLevelButtons");
-                let exportation = [];
-                let mergeTemp = [];                
+                let tempExportedMessages = [];
+                let tempMergeIds = [];      
+                let mergeOrExportState = null;          
 
                 conn.onmessage = (e) => {
 
@@ -235,8 +238,8 @@
                     }
 
                     //if the client is typing
-                    if(e.data.split("-")[0] === "37uiudnjd" && currentClientId === e.data.split("-")[1]) { 
-                        if(parseInt(document.getElementById("mainTyping").innerText.trim().length) === 3) { document.getElementById("mainTyping").innerText = "";  }
+                    if(e.data.split("-")[0] === "37uiudnjd" && currentClientId === parseInt(e.data.split("-")[1])) { 
+                        if(parseInt(document.getElementById("mainTyping").innerText.trim().length) === 3) { document.getElementById("mainTyping").innerText = ""; return;  }
                         document.getElementById("mainTyping").innerText += ".";
                         return;
                     }
@@ -308,7 +311,7 @@
                                     <img src="https://bootdey.com/img/Content/avatar/avatar5.png" class="rounded-circle mr-1" alt="Vanessa Tucker" width="40" height="40">
                                     <div class="flex-grow-1 ml-3">
                                         <span class = "clientNames" id = "${id}-clientName" >${name.trim()}</span>
-                                    <div class="small"><span class="fas fa-circle chat-online"></span><b id = "${id}-online">Online</b></div>
+                                    <div class="small"><span class="fas fa-circle chat-online"></span><b id = "${id}-online">Online</b> - <b id = "${id}-blocked"></b></div>
                                     </div>
                                 </div>
                             </div>                        
@@ -319,7 +322,7 @@
                         try {
                             document.getElementById(`${id}-online`).innerText = "offline";
                             let elemName = document.getElementById(`${id}-clientName`).innerText.trim();
-                            mergeSafe.push({name: elemName, id: id});
+                            mergeSafe.push({name: elemName, id: parseInt(id)});
                         } catch {
                             console.log("initial connection");
                         }
@@ -378,39 +381,95 @@
 
                 }
 
+                //search 
                 searchbar.onkeyup = function() { search(this.value.trim().toLowerCase()); } 
-                function search(v) {
-                    if(v === "") { for(let i = 0; i < clientNames.length; i++) { hideElements[i].style.display = "block";  }; return; };
-                    for(let i = 0; i < clientNames.length; i++) { if(clientNames[i].innerText.trim().toLowerCase().includes(v)) { hideElements[i].style.display = "block"; } else { hideElements[i].style.display = "none"; } };
-                }
+                function search(v) { if(v === "") { for(let i = 0; i < clientNames.length; i++) { hideElements[i].style.display = "block";  }; return; }; for(let i = 0; i < clientNames.length; i++) { if(clientNames[i].innerText.trim().toLowerCase().includes(v)) { hideElements[i].style.display = "block"; } else { hideElements[i].style.display = "none"; } }; }
 
+                //top level functions
                 for(let i = 0; i < tlb.length; i++) { tlb[i].onclick = function() { tLF(this.id); } }
-
                 function tLF(value) {
 
-                    // current cleint id
-
                     switch(value) {
+
                         case "export":
-                        console.log("export");
-                        //push messages to temp array and send to database
+                            tempExportedMessages = [];
+                            let name = document.getElementById(`${currentClientId}-clientName`).innerText.trim();
+                            for(let i = 0; i < messageArray.length; i++) {
+                                if(parseInt(messageArray[i].clientId) === currentClientId && messageArray[i].employeeId === "fromThem") {
+                                    tempExportedMessages.push({
+                                        name: name,
+                                        message: messageArray[i].message,
+                                        time: messageArray[i].time
+                                    });
+                                }
+                                if(messageArray[i].employeeId !== "fromThem" && parseInt(messageArray[i].clientId) === currentClientId) {
+                                    tempExportedMessages.push({
+                                        name: "employee", // <--- add your name here on employee input
+                                        message: messageArray[i].message,
+                                        time: messageArray[i].time
+                                    });
+                                }
+                            }
+                            if(tempExportedMessages.length === 0) { document.getELementById("tlError").innerText = "There is no conversation to export in this thread!"; } //add this id
+                            exportToDatabase();
                         break;
+
                         case "delete":
-                        console.log("delete everything about the person");
-                        //remove everything and delete element
+                            deleteThisPerson(currentClientId);
                         break;
+
                         case "merge":
-                        console.log("merge there information eith an offlines information");
-                        //pull modal up and check off all offline users that you want to merge messages with the current live user
-                        //when click on box store id... then when click merger search messages... find id in set and update that id to the clientid you are merging.
-                        $('#mergeModal').modal('show');
+                            tempMergeIds = [];
+                            document.getElementById("mergeBody").innerHTML = "";
+                            for(let i = 0; i < mergeSafe.length; i++) {
+                                if(mergeSafe[i].id === currentClientId) { continue; }
+                                document.getElementById("mergeBody").innerHTML += `
+                                <div class="form-check">
+                                    <input class="form-check-input pushMergedIds" type="checkbox" value="" id="flexCheckDefault" value "${mergeSafe[i].id}">
+                                    <label class="form-check-label" for="flexCheckDefault" style = "margin-bottom: 3px">
+                                    Name: ${mergeSafe[i].name} Id: ${mergeSafe[i].id}
+                                    </label>
+                                </div>`;
+                            }
+                            $('#mergeModal').modal('show');
                         break;
+
                         case "block":
-                        if(blocked.includes(currentClientId)) { blocked.splice(blocked.indexOf(currentClientId), 1);  }; //update to nothing then return
-                        blocked.push(currentClientId);
-                        //update to blocked
+                            if(blocked.includes(currentClientId)) { blocked.splice(blocked.indexOf(currentClientId), 1); document.getElementById(`${currentClientId}-blocked`).innerText = "";  }; //add this id
+                            blocked.push(currentClientId); document.getElementById(`${currentClientId}-blocked`).innerText = "blocked"; //add this id
+
                         break;
                     }
+
+                }
+
+
+                merge = () => {
+
+                    let checkBoxes = document.getElementsByClassName("pushMergedIds");
+                    for(let i = 0; i < checkBoxes.length; i++) {
+                        tempMergeIds.push(parseInt(checkBoxes[i]('.messageCheckbox:checked').value));
+                    }
+
+                    for(let i = 0; i < messageArray.length; i++) { 
+                        if(tempMergeIds.includes(parseInt(messageArray[i].clientId))) { messageArray[i].clientId = currentClientId; } //this cnges from string to int...doesnt rally matter though... should prob just parseInt on the first pull but im doing something where i dont think i can. f it, it works
+                    }
+
+                    for(let i = 0; i < tempMergeIds.length; i++) {
+                        deleteThisPerson(tempMergeIds[i]);
+                    }
+
+                }
+
+                exportToDatabase = () => {
+
+                    //push "tempExportedMessages" to database however you wish
+
+                }
+
+                deleteThisPerson = (clientId) => {
+
+
 
                 }
 
@@ -434,8 +493,15 @@
             })();
 
 
+            //we're gonna throw em some php and see how they react. lets see all the remarks they make
+            
+
         </script>
 
+        <!-- for modal -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
     </body>
 </html>
