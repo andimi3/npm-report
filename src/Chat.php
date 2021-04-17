@@ -65,8 +65,6 @@ class Chat implements MessageComponentInterface {
 
     public function onMessage(ConnectionInterface $from, $msg) {
 
-        echo $msg;
-
         //this top piece is only used for the purpose of the clientId from the client
         $clientId = null;
         $myMessage = null;
@@ -114,7 +112,8 @@ class Chat implements MessageComponentInterface {
         //if employee disconnects, disconnect everyone
         if($conn->resourceId == $this->employeResourceId) {
             foreach ($this->clients as $client) {
-                    $this->clients->detach($client);
+                $this->clients->detach($client);
+                $client->close();
             }
             return;
         }
@@ -124,6 +123,7 @@ class Chat implements MessageComponentInterface {
             if($this->clients[$client] == "employee") { 
                 $client->send("removeFromArray-".$conn->resourceId);
                 $this->clients->detach($conn);
+                $conn->close();
                 return;
             }
         }
@@ -138,7 +138,7 @@ class Chat implements MessageComponentInterface {
         if($conn->resourceId == $this->employeResourceId) {
             foreach ($this->clients as $client) {
                     $this->clients->detach($client);
-                    $this->clients[$client]->close();
+                    $client->close();
             }
             return;
         }
