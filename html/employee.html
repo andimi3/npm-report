@@ -170,7 +170,7 @@
             </div>
             <div class="modal-footer">
             <button type="button" class="btn btn-primary" id = "mergeSubmit">Merge</button>
-            <p style = "color: red">Merging will delete all conversations exept the mergers</p>
+            <p style = "color: red; text-align: center">Merging will delete all conversations exept the mergers</p>
             </div>
         </div>
         </div>
@@ -410,7 +410,7 @@
                                     });
                                 }
                             }
-                            if(tempExportedMessages.length === 0) { document.getELementById("tlError").innerText = "There is no conversation to export in this thread!"; } //add this id
+                            if(tempExportedMessages.length === 0) { document.getELementById("tlError").innerText = "There is no conversation to export in this thread!"; }
                             exportToDatabase();
                         break;
 
@@ -436,13 +436,16 @@
 
                         case "block":
                             if(blocked.includes(currentClientId)) { blocked.splice(blocked.indexOf(currentClientId), 1); document.getElementById(`${currentClientId}-blocked`).innerText = "";  }; //add this id
-                            blocked.push(currentClientId); document.getElementById(`${currentClientId}-blocked`).innerText = "blocked"; //add this id
+                            blocked.push(currentClientId); document.getElementById(`${currentClientId}-blocked`).innerText = "blocked";
 
                         break;
                     }
 
                 }
 
+                //merge offline people with either another offline person or usually an online person [p.s --- this is how github does it... good luck mike. you fina need it]
+
+                document.getElementsById("mergeSubmit").onclick = merge;
 
                 merge = () => {
 
@@ -461,11 +464,15 @@
 
                 }
 
+                //export this conversation to database
+
                 exportToDatabase = () => {
 
                     //push "tempExportedMessages" to database however you wish
 
                 }
+
+                //delete this person
 
                 deleteThisPerson = (clientId) => {
 
