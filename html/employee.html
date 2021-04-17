@@ -342,6 +342,8 @@
 
                     document.getElementById("mainTyping").innerText = "";
 
+                    document.getELementById("tlError").innerText = "";
+
                     for(let i = 0; i < messageArray.length; i++) {
 
                         //message coming from me - right side -- can just do if (employee id) === instead of this
@@ -419,6 +421,7 @@
                         break;
 
                         case "merge":
+                            if(mergeSafe.length === 0) { document.getELementById("tlError").innerText = "There are no offline conversations to merge"; }
                             tempMergeIds = [];
                             document.getElementById("mergeBody").innerHTML = "";
                             for(let i = 0; i < mergeSafe.length; i++) {
@@ -437,7 +440,6 @@
                         case "block":
                             if(blocked.includes(currentClientId)) { blocked.splice(blocked.indexOf(currentClientId), 1); document.getElementById(`${currentClientId}-blocked`).innerText = "";  }; //add this id
                             blocked.push(currentClientId); document.getElementById(`${currentClientId}-blocked`).innerText = "blocked";
-
                         break;
                     }
 
