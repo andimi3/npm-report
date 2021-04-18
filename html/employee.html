@@ -221,7 +221,7 @@
                     //if client loses connection
                     if(e.data.split("-")[0] === "removeFromArray") { 
                         console.log("client array - - - - - - - - " + clientArray);
-                        alert(e.data.split("-")[1] + "removed");
+                        alert(e.data.split("-")[1] + "removed"); //error on all disconnected
                         clientArray.splice(clientArray.indexOf(parseInt(e.data.split("-")[1])), 1);
                         elem("remove", e.data.split("-")[1], null);
                         console.log("client disconnected: " + e.data.split("-")[1]);
@@ -252,7 +252,6 @@
 
                     //if there data isnt found in any array that means i have removed the client
                     if((!clientArray.includes(parseInt(e.data.split("-")[1]))) && (!blocked.includes(parseInt(e.data.split("-")[1]))) && (!mergeSafe.includes(parseInt(e.data.split("-")[1])))) {
-                        console.log("cleint array: ------------ " + clientArray + "---- deleted" + parseInt(e.data.split("-")[1]));
                         return;
                     }
 
