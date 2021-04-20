@@ -573,7 +573,7 @@
                 }
 
                 /**
-                 * push "tempExportedMessages" to database however you wish
+                 * push "tempExportedMessages" to database however you wish <- my reccomendation is ajax... shick beanies
                  * extension from switch statement above
                  */
 
@@ -593,8 +593,13 @@
 
                 deleteThisPerson = (clientId, ifMerge) => {
 
-                    clientArray.splice(clientArray.indexOf(clientId), 1);
-                    blocked.splice(blocked.indexOf(clientId), 1);
+                    if(clientArray.indexOf(clientId) !== -1) {
+                        clientArray.splice(clientArray.indexOf(clientId), 1);
+                    }
+
+                    if(blocked.indexOf(clientId) !== -1) {
+                        blocked.splice(blocked.indexOf(clientId), 1);
+                    }
 
                     if(ifMerge === "merging") {
                         for(let i = 0; i < mergeSafe.length; i++) {
