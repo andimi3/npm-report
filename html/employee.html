@@ -185,9 +185,20 @@
 
             socket = (() => {
 
+                /**
+                 * program that toggles between connected clients so you can send messages
+                 * each client can export, merge messages - block people - delete messages and video chat
+                 * if you dont want to use third party service, spin the "client.html" up on home page and modify it and put "employee.html" on your back end somewhere and execute a shell command
+                 */
+
                 console.log("page has been refreshed");
+
+                /**
+                 * set globals and listeners
+                 */
                 
                 let employeePassword = "employee";
+                let employeeName = null;
                 let clientArray = [];
                 let messageArray = [];
                 let employeeResourceId = null;
@@ -225,9 +236,13 @@
                     sendMessage(document.getElementById("myMessage"));
                 }
 
+                
+                /**
+                 * on message connect clients, disconnect clients, show and push messages for clients...ect
+                */
+
                 conn.onmessage = (e) => {
 
-                    //if client connects
                     if(e.data.split("-")[0] === "addToArray") { 
                         clientArray.push(parseInt(e.data.split("-")[1]));
                         elem("add", e.data.split("-")[1], e.data.split("-")[2]);
@@ -235,36 +250,27 @@
                         return;
                     }
 
-                    //if client loses connection
                     if(e.data.split("-")[0] === "removeFromArray") { 
-                        clientArray.splice(clientArray.indexOf(parseInt(e.data.split("-")[1])), 1); //need to fix this on refresh... clients instance is still live triggering this. could just send a message, split on it and close there connection from the client as well as the server...
+                        clientArray.splice(clientArray.indexOf(parseInt(e.data.split("-")[1])), 1);
                         elem("remove", e.data.split("-")[1], null);
                         return;
                     }
 
-                    //if employee gets connected <- for messages
                     if(e.data.split("-")[0] === "employeeConnected") { 
                         employeeResourceId = parseInt(e.data.split("-")[1]);
                         return;
                     }      
 
-                    //you have blocked this person from sending messages
                     if(blocked.includes(parseInt(e.data.split("-")[1]))) {
                         return;
                     }
 
-                    //if the client is typing
                     if(e.data.split("-")[0] === "37uiudnjd" && currentClientId === parseInt(e.data.split("-")[1])) { 
                         if(parseInt(document.getElementById("mainTyping").innerText.trim().length) === 3) { document.getElementById("mainTyping").innerText = ""; return;  }
                         document.getElementById("mainTyping").innerText += ".";
                         return;
                     }
 
-                    //BUG: when a client disconnects after i have disconnected everyone(from refreshing) they are sending me over an id that i am removing from an array. 
-                    //to stop this on refresh just add a pram on send message when conn close to kill their instance on their side until i find out why
-                    //REMOVE BELOW IF STATEMENT IF YOU WANT WORKING ON REFRESH RESULTS...
-
-                    //if there data isnt found in any array that means i have removed the client
                     if((!clientArray.includes(parseInt(e.data.split("-")[1]))) && (!blocked.includes(parseInt(e.data.split("-")[1]))) && (!mergeSafe.includes(parseInt(e.data.split("-")[1])))) {
                         return;
                     }
@@ -272,7 +278,6 @@
                     var today = new Date();
                     var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
 
-                    //if a message push the values to an array of objects
                     messageArray.push({
                         clientId: e.data.split("-")[1], 
                         message: e.data.split("-")[0], 
@@ -280,10 +285,8 @@
                         time: time
                     });
 
-                    //if you are on the persons screen who sent a message move down
                     if(currentClientId === parseInt(e.data.split("-")[1]) || (e.data.split("-")[2] !== "fromThem" && currentClientId === parseInt(e.data.split("-")[1]))) {
 
-                        //from me
                         if(e.data.split("-")[2] !== "fromThem") {
                             document.getElementById("messagesByName").innerHTML += `
                             <div class="chat-message-right pb-4">
@@ -298,7 +301,6 @@
                             </div>`;
                         }
 
-                        //from them
                         if(e.data.split("-")[2] === "fromThem") {
                             document.getElementById("messagesByName").innerHTML += `
                             <div class="chat-message-left pb-4">
@@ -319,19 +321,21 @@
 
                     }
 
-                    //increase number for on message if not on client screen
                     if(e.data.split("-")[2] === "fromThem") { 
                         document.getElementById(`${e.data.split("-")[1]}-chatCount`).innerText = parseInt(document.getElementById(`${e.data.split("-")[1]}-chatCount`).innerText.trim()) + 1;
                      }
 
                 };
 
+                /**
+                 * add or remove client here
+                 */
+
                 elem = (decision, id, name) => {
 
-                    //add client to side bar
                     if(decision === "add") {
                         document.getElementById("clientSidePeople").innerHTML += `
-                        <div id = "${id}-identitySet" onclick = "switchClient(${id})" class="list-group-item list-group-item-action border-0 hideElements">
+                            <div id = "${id}-identitySet" onclick = "switchClient(${id})" class="list-group-item list-group-item-action border-0 hideElements">
                                 <div id = "${id}-chatCount" class="badge bg-success float-right">0</div>
                                 <div class="d-flex align-items-start">
                                     <img src="https://bootdey.com/img/Content/avatar/avatar5.png" class="rounded-circle mr-1" alt="Vanessa Tucker" width="40" height="40">
@@ -340,11 +344,9 @@
                                     <div class="small"><span class="fas fa-circle chat-online"></span><b id = "${id}-online">Online</b><b id = "${id}-blocked"></b></div>
                                     </div>
                                 </div>
-                            </div>                        
-                        `;
+                            </div>`;
                     }
 
-                    //update client to offline and push to merge option
                     if(decision === "remove") {
                         try {
                             document.getElementById(`${id}-online`).innerText = "offline";
@@ -356,6 +358,10 @@
                     }
 
                 }
+
+                /**
+                 * switch the client from side bar
+                 */
 
                 switchClient = (id) => {
 
@@ -373,7 +379,6 @@
 
                     for(let i = 0; i < messageArray.length; i++) {
 
-                        //message coming from me - right side -- can just do if (employee id) === instead of this
                         if(messageArray[i].employeeId !== "fromThem" && parseInt(messageArray[i].clientId) === currentClientId) {
                             document.getElementById("messagesByName").innerHTML += `
                             <div class="chat-message-right pb-4">
@@ -388,7 +393,6 @@
                             </div>`;
                         }
                         
-                        //message coming from them - left side
                         if(messageArray[i].employeeId === "fromThem" && parseInt(messageArray[i].clientId) === currentClientId) {
                             document.getElementById("messagesByName").innerHTML += `
                             <div class="chat-message-left pb-4">
@@ -410,6 +414,10 @@
 
                 }
 
+                /**
+                 * search the sidebar
+                 */
+
                 function search(v) { 
 
                     if(v === "") { 
@@ -428,6 +436,10 @@
                     }
 
                 }
+
+                /**
+                 * options for when you have a certain client selected. export, merge, delete, block, video call
+                 */
 
                 function tLF(value) {
 
@@ -451,7 +463,7 @@
 
                                 if(messageArray[i].employeeId !== "fromThem" && parseInt(messageArray[i].clientId) === currentClientId) {
                                     tempExportedMessages.push({
-                                        name: "employee", // <--- add your name here on employee input
+                                        name: "employee",
                                         message: messageArray[i].message,
                                         time: messageArray[i].time
                                     });
@@ -522,12 +534,6 @@
 
                         case "videoCall":
 
-                        //kill[murder][slaughter][permanently terminate][massacre][assasinate][liquidate][end forever] any exixsting rtc connections (theres and mine) or just keep mine the same and cange params on mine for their side { me me me, [them them them] <- update }
-                        //generate my rtc connection [if i choose not to update]
-                        //send a message that generates their rtc and attach my id'd rtc connection. -> display on their screen (generate and config for both sides)
-                        //send back their id'd rtc connection to attach to mine
-                        //display their connection on my screen and my connection on their screen
-                        //when leave kill mine and their connection. [or just kill theirs so i can update mine] ..not sure
                         document.getElementById("messagesByName").innerHTML = "VIDEO";
 
                         break;
@@ -535,6 +541,11 @@
                     }
 
                 }
+
+                /**
+                 * merge list of client id's with current client id
+                 * merge extension from switch statement above
+                 */
 
                 merge = () => {
 
@@ -561,27 +572,41 @@
 
                 }
 
+                /**
+                 * push "tempExportedMessages" to database however you wish
+                 * export extension from switch statement above
+                 */
 
                 exportToDatabase = () => {
-
-                    //push "tempExportedMessages" to database however you wish
 
                     document.getElementById("tlError").innerText = "You have successfully exported to database!";
                     document.getElementById("tlError").style.color = "green";
 
                 }
 
-                deleteThisPerson = (clientId) => {
-                  //remove element and arrays with data and also remove their connection on server and their client instance ...until i know why killing on server doesnt kill theirs
-                }
+                /**
+                 * remove element and arrays with data and also remove their connection on server [and their client instance]
+                 */
 
-                rtcInit = () => {
-                    //do everything you said in above here... 
-                }
+                deleteThisPerson = (clientId) => { }
+
+                /**
+                 * init video with client
+                 */
+
+                rtcInit = () => {}
+
+                /**
+                 * close connection
+                 */
 
                 conn.onerror = (e) => {
                     alert("ERROR CONNECTING" + e);
                 }
+
+                /**
+                 * send message
+                 */
 
                 sendMessage = (v) => {
                     if(blocked.includes(currentClientId)) { return; }
@@ -596,6 +621,18 @@
             //hate it before you scrolled down i already forgave ya - j cole
             //we are now administering our scroll test.
             //https://www.youtube.com/watch?v=WFoZJrZrL8w
+
+            //BUG: when a client disconnects after i have disconnected everyone(from refreshing) they are sending me over an id that i am removing from an array. 
+            //to stop this on refresh just add a pram on send message when conn close to kill their instance on their side until i find out why
+            //REMOVE BELOW IF STATEMENT IF YOU WANT WORKING ON REFRESH RESULTS...
+
+            //video
+            //kill[murder][slaughter][permanently terminate][massacre][assasinate][liquidate][end forever] any exixsting rtc connections (theres and mine) or just keep mine the same and change params on mine for their side { me me me, [them them them] <- update }
+            //generate my rtc connection [if i choose not to update]
+            //send a message that generates their rtc and attach my id'd rtc connection. -> display on their screen (generate and config for both sides)
+            //send back their id'd rtc connection to attach to mine
+            //display their connection on my screen and my connection on their screen
+            //when leave kill mine and their connection. [or just kill theirs so i can update mine] ..not sure            
             
 
         </script>
