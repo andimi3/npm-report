@@ -111,6 +111,7 @@
                                         <button id = "export" class="btn btn-primary btn-sm mr-1 px-3 topLevelButtons">Export</button>
                                         <button id = "block" class="btn btn-info btn-sm mr-1 px-3 d-none d-md-inline-block topLevelButtons">Block</button>
                                         <button id = "merge" class="btn btn-light border btn-sm px-3 topLevelButtons">Merge offline conversations</button>
+                                        <button id = "videoCall" class="btn btn-light border btn-sm px-3 topLevelButtons">Video Call</button>
                                         <button id = "delete" class="btn btn-danger border btn-sm px-3 topLevelButtons">Delete All</button>
                                     </div>
                                 </div>
@@ -186,26 +187,39 @@
 
                 console.log("page has been refreshed");
                 
-                //socket stuff
-                let employeePassword = "employee"; //employee password for connection employee. should match server
-                let clientArray = []; //for adding and removing
-                let messageArray = []; //for viewing messages
-                let employeeResourceId = null;//for messages
-                let currentClientId = null; //for checkin if on client screen while i message them so i can append element and move down - state of most functions
-                let mergeSafe = []; //clients who are offline whos data you can merge with an online client. (incase they left)
-                let blocked = []; //people i have blocked from sending messages
-                let conn = new WebSocket(`ws://localhost:8082?employee=${employeePassword}`); //new socket
+                let employeePassword = "employee";
+                let clientArray = [];
+                let messageArray = [];
+                let employeeResourceId = null;
+                let currentClientId = null;
+                let mergeSafe = [];
+                let blocked = [];
+                let conn = new WebSocket(`ws://localhost:8082?employee=${employeePassword}`);
 
-                //search through search bar
                 let searchbar = document.getElementById("searchBar");
+ 
+                searchbar.onkeyup = function() { 
+                    search(this.value.trim().toLowerCase());
+                } 
+
                 let clientNames = document.getElementsByClassName("clientNames");
                 let hideElements = document.getElementsByClassName("hideElements");
 
-                //click on top level button and change
                 let tlb = document.getElementsByClassName("topLevelButtons");
+
+                for(let i = 0; i < tlb.length; i++) { 
+                    tlb[i].onclick = function() {
+                         tLF(this.id); 
+                    } 
+                }
+
                 let tempExportedMessages = [];
                 let tempMergeIds = [];      
-                let mergeOrExportState = null;          
+                let mergeOrExportState = null;   
+
+                document.getElementById("mergeSubmit").onclick = () => { 
+                    merge(); 
+                };
 
                 conn.onmessage = (e) => {
 
@@ -213,31 +227,25 @@
                     if(e.data.split("-")[0] === "addToArray") { 
                         clientArray.push(parseInt(e.data.split("-")[1]));
                         elem("add", e.data.split("-")[1], e.data.split("-")[2]);
-                        console.log("client connected: " + e.data.split("-")[1]);
                         clientArray.length === 1 ? switchClient(e.data.split("-")[1]) : console.log("there are clients to select from");
                         return;
                     }
 
                     //if client loses connection
                     if(e.data.split("-")[0] === "removeFromArray") { 
-                        console.log("client array - - - - - - - - " + clientArray);
-                        alert(e.data.split("-")[1] + "removed"); //error on all disconnected
-                        clientArray.splice(clientArray.indexOf(parseInt(e.data.split("-")[1])), 1);
+                        clientArray.splice(clientArray.indexOf(parseInt(e.data.split("-")[1])), 1); //need to fix this on refresh... clients instance is still live triggering this. could just send a message, split on it and close there connection from the client as well as the server...
                         elem("remove", e.data.split("-")[1], null);
-                        console.log("client disconnected: " + e.data.split("-")[1]);
                         return;
                     }
 
                     //if employee gets connected <- for messages
                     if(e.data.split("-")[0] === "employeeConnected") { 
                         employeeResourceId = parseInt(e.data.split("-")[1]);
-                        console.log("employee connected: " + employeeResourceId);
                         return;
                     }      
 
                     //you have blocked this person from sending messages
                     if(blocked.includes(parseInt(e.data.split("-")[1]))) {
-                        console.log("blocked message");
                         return;
                     }
 
@@ -248,7 +256,9 @@
                         return;
                     }
 
-                    //BUG: basically when a client disconnects after i have disconnected everyone(from refreshing), they are sending me over an id that i am removing from an array WHEN THEY DISCONNECT. i need to figure out why the conn on their end is still live when i already closed it on my end. its removing clientId random values...
+                    //BUG: when a client disconnects after i have disconnected everyone(from refreshing) they are sending me over an id that i am removing from an array. 
+                    //to stop this on refresh just add a pram on send message when conn close to kill their instance on their side until i find out why
+                    //REMOVE BELOW IF STATEMENT IF YOU WANT WORKING ON REFRESH RESULTS...
 
                     //if there data isnt found in any array that means i have removed the client
                     if((!clientArray.includes(parseInt(e.data.split("-")[1]))) && (!blocked.includes(parseInt(e.data.split("-")[1]))) && (!mergeSafe.includes(parseInt(e.data.split("-")[1])))) {
@@ -281,8 +291,7 @@
                                     <div class="font-weight-bold mb-1">You</div>
                                     ${e.data.split("-")[0]}
                                 </div>
-                            </div>
-                            `;
+                            </div>`;
                         }
 
                         //from them
@@ -297,11 +306,8 @@
                                     <div class="font-weight-bold mb-1">Client</div>
                                     ${e.data.split("-")[0]}
                                 </div>
-                            </div>
-                            `;
+                            </div>`;
                         }
-
-                        console.log("cleint array: ------------ " + clientArray);
 
                         var element = document.getElementById("messagesByName");
                         element.scrollTop = element.scrollHeight;
@@ -310,10 +316,11 @@
                     }
 
                     //increase number for on message if not on client screen
-                    if(e.data.split("-")[2] === "fromThem") { document.getElementById(`${e.data.split("-")[1]}-chatCount`).innerText = parseInt(document.getElementById(`${e.data.split("-")[1]}-chatCount`).innerText.trim()) + 1; }
+                    if(e.data.split("-")[2] === "fromThem") { 
+                        document.getElementById(`${e.data.split("-")[1]}-chatCount`).innerText = parseInt(document.getElementById(`${e.data.split("-")[1]}-chatCount`).innerText.trim()) + 1;
+                     }
 
                 };
-
 
 
                 elem = (decision, id, name) => {
@@ -403,21 +410,38 @@
 
                 }
 
-                //search 
-                searchbar.onkeyup = function() { search(this.value.trim().toLowerCase()); } 
-                function search(v) { if(v === "") { for(let i = 0; i < clientNames.length; i++) { hideElements[i].style.display = "block";  }; return; }; for(let i = 0; i < clientNames.length; i++) { if(clientNames[i].innerText.trim().toLowerCase().includes(v)) { hideElements[i].style.display = "block"; } else { hideElements[i].style.display = "none"; } }; }
+                function search(v) { 
 
-                //top level functions
-                for(let i = 0; i < tlb.length; i++) { tlb[i].onclick = function() { tLF(this.id); } }
+                        if(v === "") { 
+                            for(let i = 0; i < clientNames.length; i++) { 
+                                hideElements[i].style.display = "block"; 
+                            }
+                            return; 
+                        } 
+
+                        for(let i = 0; i < clientNames.length; i++) {
+                            if(clientNames[i].innerText.trim().toLowerCase().includes(v)) { 
+                                hideElements[i].style.display = "block"; 
+                            } else { 
+                                hideElements[i].style.display = "none";
+                            }
+                        }
+
+                }
+
 
                 function tLF(value) {
 
                     switch(value) {
 
                         case "export":
+
                             tempExportedMessages = [];
+
                             let name = document.getElementById(`${currentClientId}-clientName`).innerText.trim();
+
                             for(let i = 0; i < messageArray.length; i++) {
+
                                 if(parseInt(messageArray[i].clientId) === currentClientId && messageArray[i].employeeId === "fromThem") {
                                     tempExportedMessages.push({
                                         name: name,
@@ -425,6 +449,7 @@
                                         time: messageArray[i].time
                                     });
                                 }
+
                                 if(messageArray[i].employeeId !== "fromThem" && parseInt(messageArray[i].clientId) === currentClientId) {
                                     tempExportedMessages.push({
                                         name: "employee", // <--- add your name here on employee input
@@ -432,21 +457,43 @@
                                         time: messageArray[i].time
                                     });
                                 }
+
                             }
-                            if(tempExportedMessages.length === 0) { document.getElementById("tlError").innerText = "There is no conversation to export in this thread!"; document.getElementById("tlError").style.color = "red"; return; }
+
+                            if(tempExportedMessages.length === 0) { 
+                                document.getElementById("tlError").innerText = "There is no conversation to export in this thread!"; 
+                                document.getElementById("tlError").style.color = "red"; 
+                                return; 
+                            }
+
                             exportToDatabase();
+
                         break;
 
                         case "delete":
+
                             deleteThisPerson(currentClientId);
+
                         break;
 
                         case "merge":
-                            if(mergeSafe.length === 0) { document.getElementById("tlError").innerText = "There are no offline conversations to merge"; document.getElementById("tlError").style.color = "red"; return; }
+
+                            if(mergeSafe.length === 0) { 
+                                document.getElementById("tlError").innerText = "There are no offline conversations to merge"; 
+                                document.getElementById("tlError").style.color = "red"; 
+                                return; 
+                            }
+
                             tempMergeIds = [];
+
                             document.getElementById("mergeBody").innerHTML = "";
+
                             for(let i = 0; i < mergeSafe.length; i++) {
-                                if(mergeSafe[i].id === currentClientId) { continue; }
+
+                                if(mergeSafe[i].id === currentClientId) { 
+                                    continue; 
+                                }
+
                                 document.getElementById("mergeBody").innerHTML += `
                                 <div class="form-check">
                                     <input class="form-check-input pushMergedIds" type="checkbox" value="" id="flexCheckDefault" value "${mergeSafe[i].id}">
@@ -454,35 +501,56 @@
                                     Name: ${mergeSafe[i].name} Id: ${mergeSafe[i].id}
                                     </label>
                                 </div>`;
+
                             }
+
                             $('#mergeModal').modal('show');
+
                         break;
 
                         case "block":
-                            if(blocked.includes(currentClientId)) { blocked.splice(blocked.indexOf(currentClientId), 1); document.getElementById(`${currentClientId}-blocked`).innerText = ""; return;  };
-                            blocked.push(currentClientId); document.getElementById(`${currentClientId}-blocked`).innerText = "-blocked";
+
+                            if(blocked.includes(currentClientId)) {
+                                blocked.splice(blocked.indexOf(currentClientId), 1);
+                                document.getElementById(`${currentClientId}-blocked`).innerText = "";
+                                return;  
+                            };
+
+                            blocked.push(currentClientId); 
+                            document.getElementById(`${currentClientId}-blocked`).innerText = "-blocked";
+
+                        break;
+
+                        case "videoCall":
+
+                        //kill any exixsting rtc connections (theres and mine) or just keep mine the same and cange params on mine for their side { me me me, [them them them] <- update }
+                        //generate my rtc connection [if i choose not to update]
+                        //send a message that generates their rtc and attach my id'd rtc connection. -> display on their screen (generate and config for both sides)
+                        //send back their id'd rtc connection to attach to mine
+                        //display their connection on my screen and my connection on their screen
+                        //when leave kill mine and their connection. [or just kill theirs so i can update mine] ..not sure
+                        document.getElementById("messagesByName").innerHTML = "VIDEO";
+
                         break;
 
                     }
 
                 }
 
-                //merge offline people with either another offline person or usually an online person [p.s --- this is how github does it... good luck mike.
-
-                document.getElementById("mergeSubmit").onclick = () => { merge() };
-
                 merge = () => {
 
                     let checkBoxes = document.getElementsByClassName("pushMergedIds");
+
                     for(let i = 0; i < checkBoxes.length; i++) {
-                        if(checkBoxes[i].checked === true) { tempMergeIds.push(parseInt(checkBoxes[i].value)) };
+                        if(checkBoxes[i].checked === true) { 
+                            tempMergeIds.push(parseInt(checkBoxes[i].value)) 
+                        };
                     }
 
-                    console.log("merged id + " + tempMergeIds);
-                    return;
-
                     for(let i = 0; i < messageArray.length; i++) { 
-                        if(tempMergeIds.includes(parseInt(messageArray[i].clientId))) { messageArray[i].clientId = currentClientId; } //this cnges from string to int...doesnt rally matter though... should prob just parseInt on the first pull but im doing something where i dont think i can. f it, it works
+                        if(tempMergeIds.includes(parseInt(messageArray[i].clientId))) { 
+                            messageArray[i].clientId = currentClientId; 
+                        } 
                     }
 
                     for(let i = 0; i < tempMergeIds.length; i++) {
@@ -494,7 +562,6 @@
 
                 }
 
-                //export this conversation to database
 
                 exportToDatabase = () => {
 
@@ -505,11 +572,18 @@
 
                 }
 
-                //delete this person
-                //remove from all data storage, delete element, remove connection
                 deleteThisPerson = (clientId) => {
 
-                  //remove element and other stuff
+                  //remove element and arrays with data and also remove their connection on server and their client instance ...until i know why killing on server doesnt kill theirs
+
+                }
+
+
+                rtcInit = () => {
+
+
+                    //do everything you said in above here... 
+
 
                 }
 
