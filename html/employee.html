@@ -483,7 +483,7 @@
 
                         case "delete":
 
-                            deleteThisPerson(currentClientId);
+                            deleteThisPerson(currentClientId, "not merging");
 
                         break;
 
@@ -534,7 +534,7 @@
 
                         case "videoCall":
 
-                        document.getElementById("messagesByName").innerHTML = "VIDEO";
+                            document.getElementById("messagesByName").innerHTML = "VIDEO";
 
                         break;
 
@@ -544,7 +544,7 @@
 
                 /**
                  * merge list of client id's with current client id
-                 * merge extension from switch statement above
+                 * extension from switch statement above
                  */
 
                 merge = () => {
@@ -564,7 +564,7 @@
                     }
 
                     for(let i = 0; i < tempMergeIds.length; i++) {
-                        deleteThisPerson(tempMergeIds[i]);
+                        deleteThisPerson(tempMergeIds[i], "merging");
                     }
 
                     document.getElementById("tlError").innerText = "You have successfully merged!";
@@ -574,7 +574,7 @@
 
                 /**
                  * push "tempExportedMessages" to database however you wish
-                 * export extension from switch statement above
+                 * extension from switch statement above
                  */
 
                 exportToDatabase = () => {
@@ -585,13 +585,38 @@
                 }
 
                 /**
-                 * remove element and arrays with data and also remove their connection on server [and their client instance]
+                 * remove element, and arrays with data, and also remove their connection on server [and their client instance]
+                 * extension from above statement
+                 * this has not been tested but prob gonna work cuz im da dude - dadude.net
+                 * add removeSingleClient on back end
                  */
 
-                deleteThisPerson = (clientId) => { }
+                deleteThisPerson = (clientId, ifMerge) => {
+
+                    clientArray.splice(clientArray.indexOf(clientId), 1);
+                    blocked.splice(blocked.indexOf(clientId), 1);
+
+                    if(ifMerge === "merging") {
+                        for(let i = 0; i < mergeSafe.length; i++) {
+                            if(mergeSafe[i].id === clientId) { mergeSafe.splice(i, 1); }
+                        }
+                    }
+
+                    if(ifMerge === "not merging") {
+                        for(let i = 0; i < messageArray.length; i++) {
+                            if(parseInt(messageArray[i].clientId) === clientId) { messageArray.splice(i, 1); }
+                        }
+                    }
+
+                    conn.send("removeSingleClient-"+clientId);
+
+                    document.getElementById(`${clientId}-identitySet`).remove();
+
+                 }
 
                 /**
                  * init video with client
+                 * extension from above switch statement
                  */
 
                 rtcInit = () => { }
@@ -623,7 +648,7 @@
             //https://www.youtube.com/watch?v=WFoZJrZrL8w
 
             //BUG: when a client disconnects after i have disconnected everyone(from refreshing) they are sending me over an id that i am removing from an array. 
-            //to stop this on refresh just add a pram on send message when conn close to kill their instance on their side until i find out why
+            //to stop this on refresh just add a param on send message when conn close to kill their instance on their side until i find out why
             //REMOVE IF STATEMENT BELOW IF YOU WANT WORKING ON REFRESH RESULTS...
             //if((!clientArray.includes(parseInt(e.data.split("-")[1]))) && (!blocked.includes(parseInt(e.data.split("-")[1]))) && (!mergeSafe.includes(parseInt(e.data.split("-")[1])))) { return } <-- on message
 
