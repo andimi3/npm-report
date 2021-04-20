@@ -208,7 +208,7 @@
                 let tlb = document.getElementsByClassName("topLevelButtons");
 
                 for(let i = 0; i < tlb.length; i++) { 
-                    tlb[i].onclick = function() {
+                    tlb[i].onclick = function () {
                          tLF(this.id); 
                     } 
                 }
@@ -220,6 +220,10 @@
                 document.getElementById("mergeSubmit").onclick = () => { 
                     merge(); 
                 };
+
+                document.getElementById("sendMessage").onclick = () => { 
+                    sendMessage(document.getElementById("myMessage"));
+                }
 
                 conn.onmessage = (e) => {
 
@@ -322,7 +326,6 @@
 
                 };
 
-
                 elem = (decision, id, name) => {
 
                     //add client to side bar
@@ -353,9 +356,6 @@
                     }
 
                 }
-
-
-                //switch the client
 
                 switchClient = (id) => {
 
@@ -428,7 +428,6 @@
                         }
 
                 }
-
 
                 function tLF(value) {
 
@@ -573,30 +572,15 @@
                 }
 
                 deleteThisPerson = (clientId) => {
-
                   //remove element and arrays with data and also remove their connection on server and their client instance ...until i know why killing on server doesnt kill theirs
-
                 }
-
 
                 rtcInit = () => {
-
-
                     //do everything you said in above here... 
-
-
                 }
-
-                //connection error
 
                 conn.onerror = (e) => {
                     alert("ERROR CONNECTING" + e);
-                }
-
-                //sending message
-
-                document.getElementById("sendMessage").onclick = () => { 
-                    sendMessage(document.getElementById("myMessage"));
                 }
 
                 sendMessage = (v) => {
@@ -609,6 +593,7 @@
 
 
             //we're gonna throw em some php and see how they react. lets see all the remarks they make
+            //hate it before you scrolled down i already forgave ya - j cole
             //https://www.youtube.com/watch?v=WFoZJrZrL8w
             
 
