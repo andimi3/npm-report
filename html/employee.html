@@ -290,7 +290,7 @@
                                 <div>
                                     <img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="rounded-circle mr-1" alt="Chris Wood" width="40" height="40">
                                     <div class="text-muted small text-nowrap mt-2">${time}</div>
-                                    </div>
+                                </div>
                                 <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
                                     <div class="font-weight-bold mb-1">You</div>
                                     ${e.data.split("-")[0]}
@@ -305,7 +305,7 @@
                                 <div>
                                     <img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="rounded-circle mr-1" alt="Chris Wood" width="40" height="40">
                                     <div class="text-muted small text-nowrap mt-2">${time}</div>
-                                    </div>
+                                </div>
                                 <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
                                     <div class="font-weight-bold mb-1">Client</div>
                                     ${e.data.split("-")[0]}
@@ -380,7 +380,7 @@
                                 <div>
                                     <img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="rounded-circle mr-1" alt="Chris Wood" width="40" height="40">
                                     <div class="text-muted small text-nowrap mt-2">${messageArray[i].time}</div>
-                                    </div>
+                                </div>
                                 <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
                                     <div class="font-weight-bold mb-1">You</div>
                                     ${messageArray[i].message}
@@ -395,7 +395,7 @@
                                 <div>
                                     <img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="rounded-circle mr-1" alt="Chris Wood" width="40" height="40">
                                     <div class="text-muted small text-nowrap mt-2">${messageArray[i].time}</div>
-                                    </div>
+                                </div>
                                 <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
                                     <div class="font-weight-bold mb-1">Client</div>
                                     ${messageArray[i].message}
@@ -412,20 +412,20 @@
 
                 function search(v) { 
 
-                        if(v === "") { 
-                            for(let i = 0; i < clientNames.length; i++) { 
-                                hideElements[i].style.display = "block"; 
-                            }
-                            return; 
-                        } 
-
-                        for(let i = 0; i < clientNames.length; i++) {
-                            if(clientNames[i].innerText.trim().toLowerCase().includes(v)) { 
-                                hideElements[i].style.display = "block"; 
-                            } else { 
-                                hideElements[i].style.display = "none";
-                            }
+                    if(v === "") { 
+                        for(let i = 0; i < clientNames.length; i++) { 
+                            hideElements[i].style.display = "block"; 
                         }
+                        return; 
+                    } 
+
+                    for(let i = 0; i < clientNames.length; i++) {
+                        if(clientNames[i].innerText.trim().toLowerCase().includes(v)) { 
+                            hideElements[i].style.display = "block"; 
+                        } else { 
+                            hideElements[i].style.display = "none";
+                        }
+                    }
 
                 }
 
