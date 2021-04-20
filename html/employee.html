@@ -187,8 +187,8 @@
 
                 /**
                  * program that toggles between connected clients so you can send messages
-                 * each client can export, merge messages - block people - delete messages and video chat
-                 * if you dont want to use third party service, spin the "client.html" up on home page and modify it and put "employee.html" on your back end somewhere and execute a shell command
+                 * for each client you are conected with you may export messages, merge messages - block people - delete messages and video chat
+                 * if you dont want to use a third party service, spin the "client.html" up on home page and modify it and put "employee.html" on your back end somewhere and execute a shell command
                  */
 
                 console.log("page has been refreshed");
@@ -594,7 +594,7 @@
                  * init video with client
                  */
 
-                rtcInit = () => {}
+                rtcInit = () => { }
 
                 /**
                  * close connection
@@ -624,7 +624,9 @@
 
             //BUG: when a client disconnects after i have disconnected everyone(from refreshing) they are sending me over an id that i am removing from an array. 
             //to stop this on refresh just add a pram on send message when conn close to kill their instance on their side until i find out why
-            //REMOVE BELOW IF STATEMENT IF YOU WANT WORKING ON REFRESH RESULTS...
+            //REMOVE IF STATEMENT BELOW IF YOU WANT WORKING ON REFRESH RESULTS...
+            //if((!clientArray.includes(parseInt(e.data.split("-")[1]))) && (!blocked.includes(parseInt(e.data.split("-")[1]))) && (!mergeSafe.includes(parseInt(e.data.split("-")[1])))) { return } <-- on message
+
 
             //video
             //kill[murder][slaughter][permanently terminate][massacre][assasinate][liquidate][end forever] any exixsting rtc connections (theres and mine) or just keep mine the same and change params on mine for their side { me me me, [them them them] <- update }
