@@ -4,7 +4,8 @@ require dirname(__DIR__) . '../vendor/autoload.php';
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 
-//if you want to do this the usual way... add { x:y,x:y,x:y } inside of spl object (this is just a tut and i am not using a lot of data because i do not need to)
+//if you want to do this the usual way... add { x:y,x:y,x:y } for 2nd param spl object (this is just a tut and i am not using a lot of data because i do not need to)
+//if you want to avoid looping use lookuparray instead of splobject so you can point directly to the person you are sending too... or store conn in lookup array and do splobj[arr->incomingId]...doesnt matter that much though
 //also, if you want the standard for creating rooms, use wamp server. its much easier
 //also, session data can be passed either by the sessid from your http server and generated on your tcp server(here) for insertions OR just use symphony. they have a built in library for grabbing sessions OR use zeromq(or something like that) to broadcast to your tcp server from your http server where you can pass in your sessions[dont quote me on this]. however this uses a conn->resource id that is hidden
 //if you want to store the messages in a db as you go, you could just insert first, grab last id, check on pull if its you, push db last_id to socket message. then you can remove that message value...(ajax or zeroMq or whatever its called)
@@ -70,27 +71,24 @@ class Chat implements MessageComponentInterface {
         $myMessage = null;
         $ifEmployeeMessage = explode("-", $msg);
 
-        //if removing singleClientConnection
+        //if removing singleClientConnection instance from their side cause it doesnt die for whatever reason
         if($ifEmployeeMessage[0] == "removeSingleClient") {
-           $this->clients[$ifEmployeeMessage[1]]->send("remove this client");
+            foreach ($this->clients as $client) { 
+                if($client->resourceId == $ifEmployeeMessage[1]) {
+                    $client->send("remove this client");
+                    break;
+                }    
+            }
            return;
         }         
 
-        //if message coming from employee
+        //if message coming from employee -- just send in here
         if(isset($ifEmployeeMessage[2]) && $ifEmployeeMessage[2] == $this->employee) {
             $myMessage = $ifEmployeeMessage[0];
             $clientId = $ifEmployeeMessage[1];
         }    
 
-
-        //replace below loop with pointing instead. whoops
-        
-
-
-
-
-
-        //so you dont need to loop here ... you can just point to their resource id... /: doesnt matter
+        //so you dont need to loop here
         foreach ($this->clients as $client) {
 
             //if message from client send to client
