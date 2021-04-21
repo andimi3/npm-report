@@ -580,7 +580,7 @@
                     document.getElementById("tlError").innerText = "You have successfully merged!";
                     document.getElementById("tlError").style.color = "green";
 
-                    $('#mergeModal').modal('close');
+                    $('#mergeModal').modal('hide');
 
                 }
 
@@ -663,10 +663,7 @@
 
             })();
 
-            //BUG: when a client disconnects after i have disconnected everyone(from refreshing) they are sending me over an id that i am removing from an array. 
-            //to stop this on refresh just add a param on send message when conn close to kill their instance on their side until i find out why
-            //REMOVE IF STATEMENT BELOW IF YOU WANT WORKING ON REFRESH RESULTS...
-            //if((!clientArray.includes(parseInt(e.data.split("-")[1]))) && (!blocked.includes(parseInt(e.data.split("-")[1]))) && (!mergeSafe.includes(parseInt(e.data.split("-")[1])))) { return } <-- on message
+            //BUG: when removing a single instance, the previous instance added gets removed as well.. weird but i will fix
 
             //video
             //kill[murder][slaughter][permanently terminate][massacre][assasinate][liquidate][end forever] any exixsting rtc connections (theres and mine) or just keep mine the same and change params on mine for their side { me me me, [them them them] <- update }
