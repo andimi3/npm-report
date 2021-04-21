@@ -8,7 +8,7 @@ use Ratchet\ConnectionInterface;
 //if you want to avoid looping use lookuparray combined with resourceId so you can point directly to the person you are sending the message to... or store conn in lookup array and do splobj[arr->incomingId]... or something like that.
 //also, if you want the standard for creating rooms, use wamp server. its much easier
 //also, session data can be passed either by the sessid from your http server and generated on your tcp server(here) for insertions OR just use symphony. they have a built in library for grabbing sessions OR use zeromq(or something like that) to broadcast to your tcp server from your http server where you can pass in your sessions[dont quote me on this]. however this uses a conn->resource id that is hidden
-//if you want to store the messages in a db as you go, you could just insert first, grab last id, check on pull if its you, push db last_id to socket message. then you can remove that message value...(ajax or zeroMq or whatever its called)
+//if you want to store the messages in a db as you go, you could just insert first, grab last id, check on pull, if its you, push db last_id to socket message. then you can remove that message value...(ajax or zeroMq or whatever its called)
 //only down side to this is the "-" <-- you wouldnt use this traditionally but it works here. just escape if they pass that in as there name on the client or add some code to let them. or just change the value to some long passcode instead of "-".
 
 class Chat implements MessageComponentInterface {
@@ -156,8 +156,6 @@ class Chat implements MessageComponentInterface {
     }
 
     public function onError(ConnectionInterface $conn, \Exception $e) {
-
-        echo "errorrrrrrrrrrrrrrrrrrr";
 
         //if employee disconnects, disconnect everyone
         if($conn->resourceId == $this->employeResourceId) {

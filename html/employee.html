@@ -605,9 +605,7 @@
 
                 /**
                  * remove element, and arrays with data, and also remove their connection on server [and their client instance]
-                 * extension from above statement
-                 * this has not been tested but prob gonna work cuz im da dude - dadude.net
-                 * add removeSingleClient on back end
+                 * extension from above switch statement
                  */
 
                 deleteThisPerson = (clientId, ifMerge) => {
@@ -617,9 +615,11 @@
                     }
 
                     if(ifMerge === "merging") {
+
                         for(let i = 0; i < mergeSafe.length; i++) {
                             if(mergeSafe[i].id === clientId) { mergeSafe.splice(i, 1); }
                         }
+
                     }
 
                     if(ifMerge === "not merging") {
@@ -634,8 +634,6 @@
                         conn.send(`removeSingleClient-${clientId}`); //kill their instance... add this in
 
                     }
-
-            
 
                     document.getElementById(`${clientId}-identitySet`).remove();
 
@@ -671,7 +669,7 @@
             //BUG: when removing a single instance, the last instance in some set gets removed as well.. weird but i will fix. FIXED:  was splicing on the delete and onmessage which caused last valie to delete because i am not using indexOf. should just splice everywhere
 
             //video
-            //kill[murder][slaughter][permanently terminate][massacre][assasinate][liquidate][end forever] any exixsting rtc connections (theres and mine) or just keep mine the same and change params on mine for their side { me me me, [them them them] <- update }
+            //kill.murder.slaughter.permanentlyTerminate.massacre.assasinate.liquidate.endForever() any exixsting rtc connections (theres and mine) or just keep mine the same and change params on mine for their side { me me me, [them them them] <- update }
             //generate my rtc connection [if i choose not to update]
             //send a message that generates their rtc and attach my id'd rtc connection. -> display on their screen (generate and config for both sides)
             //send back their id'd rtc connection to attach to mine
