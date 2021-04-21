@@ -5,7 +5,7 @@ use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 
 //if you want to do this the usual way... add { x:y,x:y,x:y } for 2nd param spl object (this is just a tut and i am not using a lot of data because i do not need to)
-//if you want to avoid looping use lookuparray instead of splobject so you can point directly to the person you are sending too... or store conn in lookup array and do splobj[arr->incomingId]...doesnt matter that much though
+//if you want to avoid looping use lookuparray combined with resourceId so you can point directly to the person you are sending the message to... or store conn in lookup array and do splobj[arr->incomingId]... or something like that.
 //also, if you want the standard for creating rooms, use wamp server. its much easier
 //also, session data can be passed either by the sessid from your http server and generated on your tcp server(here) for insertions OR just use symphony. they have a built in library for grabbing sessions OR use zeromq(or something like that) to broadcast to your tcp server from your http server where you can pass in your sessions[dont quote me on this]. however this uses a conn->resource id that is hidden
 //if you want to store the messages in a db as you go, you could just insert first, grab last id, check on pull if its you, push db last_id to socket message. then you can remove that message value...(ajax or zeroMq or whatever its called)
@@ -71,7 +71,7 @@ class Chat implements MessageComponentInterface {
         $myMessage = null;
         $ifEmployeeMessage = explode("-", $msg);
 
-        //if removing singleClientConnection instance from their side cause it doesnt die for whatever reason
+        //if removing singleClientConnection instance from their side cause it doesnt die for whatever reason. 
         if($ifEmployeeMessage[0] == "removeSingleClient") {
             foreach ($this->clients as $client) { 
                 if($client->resourceId == $ifEmployeeMessage[1]) {
@@ -124,12 +124,16 @@ class Chat implements MessageComponentInterface {
 
         //if employee disconnects, disconnect everyone
         if($conn->resourceId == $this->employeResourceId) {
+
             foreach ($this->clients as $client) {
-                $this->clients->detach($client);
-                $client->close();
                 $client->send("remove this client");
             }
+
+            $this->clients->detach($conn);
+            $conn->close();
+
             return;
+
         }
 
         //if client disconnects while employee online, send employee resource id to update dasboard
@@ -138,7 +142,6 @@ class Chat implements MessageComponentInterface {
                 $client->send("removeFromArray-".$conn->resourceId);
                 $this->clients->detach($conn);
                 $conn->close();
-                $client->send("remove this client");
                 return;
             }
         }
@@ -151,20 +154,24 @@ class Chat implements MessageComponentInterface {
 
         //if employee disconnects, disconnect everyone
         if($conn->resourceId == $this->employeResourceId) {
+
             foreach ($this->clients as $client) {
-                    $this->clients->detach($client);
-                    $client->close();
-                    $client->send("remove this client");
+                $client->send("remove this client");
             }
+
+            $this->clients->detach($conn);
+            $conn->close();
+
             return;
+
         }
 
         //if client error, rmeove array on employee end and update dashboard
         foreach ($this->clients as $client) {
             if($this->clients[$client] == "employee") { 
                 $client->send("removeFromArray-".$conn->resourceId);
+                $this->clients->detach($conn);
                 $conn->close();
-                $client->send("remove this client");
                 return;
             }
         }
