@@ -230,7 +230,7 @@
 
                 document.getElementById("mergeSubmit").onclick = () => { 
                     merge(); 
-                };
+                }
 
                 document.getElementById("sendMessage").onclick = () => { 
                     sendMessage(document.getElementById("myMessage"));
@@ -332,7 +332,7 @@
                         document.getElementById(`${e.data.split("-")[1]}-chatCount`).innerText = parseInt(document.getElementById(`${e.data.split("-")[1]}-chatCount`).innerText.trim()) + 1;
                      }
 
-                };
+                }
 
                 /**
                  * add or remove client here
@@ -578,9 +578,13 @@
                         } 
                     }
 
+                    console.log(mergeSafe.length + " merge safe before");
+
                     for(let i = 0; i < tempMergeIds.length; i++) {
                         deleteThisPerson(tempMergeIds[i], "merging");
                     }
+
+                    console.log(mergeSafe.length + " merge safe after");
 
                     switchClient(currentClientId);
 
