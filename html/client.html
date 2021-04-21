@@ -7,32 +7,112 @@
         <title></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+        <style>
+            * {
+                font-family: 'Avenir';
+            }
+
+            .bubbleWrapper {
+                padding: 10px 10px;
+                display: flex;
+                justify-content: flex-end;
+                flex-direction: column;
+                align-self: flex-end;
+                color: #fff;
+            }
+
+            .inlineContainer {
+                display: inline-flex;
+            }
+
+            .inlineContainer.own {
+                flex-direction: row-reverse;
+            }
+
+            .inlineIcon {
+                width:20px;
+                object-fit: contain;
+            }
+            .ownBubble {
+                min-width: 60px;
+                max-width: 700px;
+                padding: 14px 18px;
+                margin: 6px 8px;
+                background-color: #5b5377;
+                border-radius: 16px 16px 0 16px;
+                border: 1px solid #443f56;
+                font-size: 42px;
+            }
+
+            .otherBubble {
+                min-width: 60px;
+                max-width: 700px;
+                padding: 14px 18px;
+                margin: 6px 8px;
+                background-color: #6C8EA4;
+                border-radius: 16px 16px 16px 0;
+                border: 1px solid #54788e;
+                font-size: 42px;
+            }
+
+            .own {
+                align-self: flex-end;
+            }
+
+            .other {
+                align-self: flex-start;
+            }
+
+            span.own, span.other {
+                font-size: 14px;
+                color: grey;
+            }      
+
+        </style>
+
     </head>
     <body>
 
-        <input placeholder="enter name" id = "name" />
-        <button id = "submitName">Enter Name</button>
-
-        <div style = "bottom: 0; position: fixed; border: 1px solid black; width: 300px; height: 600px; overflow: scroll; right: 0; padding-right: 6px; margin-bottom: 10px; margin-right: 10px;">
-        <div id = "messages" style = "padding: 13px">
+    <div id = "showName" class = "row" style = "position: fixed; bottom: 0; width: 100%; padding: 0px; margin: 0px">
+        <div class="col-9" style = "padding: 0px;">
+            <input id = "name" class = "form-control" placeholder = "enter name to begin live chat" style = "width: 100%; height: 60px; padding: 20px; font-size: 24px">
         </div>
-        <input id = "myMessage" style = "bottom: 0; position: fixed; border-color:1px solid black; width: 300px; height: 30px; right: 0; margin-bottom: 10px; margin-right: 10px;" placeholder = "please enter your message">
-        <button id = "sendMessage" style = "bottom: 0">send message</button>
-
+        <div class="col-3" style = "padding: 0px;">
+            <button id = "submitName" class = "btn btn-primary" style = "width: 100%; height: 60px; font-size: 24px">Enter Live Chat</button>
+        </div>
     </div>
 
+    <div id = "showChat" style = "position: fixed; bottom: 0; width: 100%; overflow: hidden;" hidden>
+
+        <div id = "messages" style = "height: 90vh; overflow-y: scroll">
+
+        </div>
+
+        <div class = "row">
+            <div class="col-9" style = "padding: 0px;">
+                <input id = "myMessage" class = "form-control" placeholder = "enter message" style = "width: 100%; height: 60px; padding: 20px; font-size: 24px">
+            </div>
+            <div class="col-3" style = "padding: 0px;">
+                <button id = "sendMessage" class = "btn btn-primary" style = "width: 100%; height: 60px; font-size: 24px">Send messages</button>
+            </div>
+        </div>
+
+    </div>
+        
         <script>
 
-            let conn = null;
+        let conn = null;
 
-            let gName = null;
+        let gName = null;
 
-            document.getElementById("submitName").onclick = () => { beginChat(document.getElementById("name").value); }
+        document.getElementById("submitName").onclick = () => { beginChat(document.getElementById("name").value); }
 
-            beginChat = (name) => {
-
-                //when i enter new name i want to close an existing
+        beginChat = (name) => {
 
                 gName = name;
 
@@ -50,6 +130,12 @@
 
                 listen();
 
+                document.getElementById("showName").hidden = true;
+
+                document.getElementById("showChat").hidden = false;
+
+                document.getElementById("name").value = "";
+
             }
 
         listen = () => {
@@ -57,40 +143,59 @@
             conn.onmessage = (e) => {
 
                 if(e.data === "Unfortunatley, there is no employee online to answer your questions...") {
-                    console.log(e.data);
+                    alert(e.data); 
+                    document.getElementById("showName").hidden = false;
+                    document.getElementById("showChat").hidden = true;
                     return;
                 }
 
                 if(e.data === "remove this client") {
-                    conn.close();
-                    alert("your instance has closed");
-                    return;
+                     conn.close();
+                     alert("your instance has closed");
+                     document.getElementById("showName").hidden = false;
+                     document.getElementById("showChat").hidden = true;
+                     return;
                 }
 
                 let response = e.data.split("-")[1];
 
-                if(response === "fromMe") {
-                    document.getElementById("messages").innerHTML += `
-                    <p style = "margin-left: 5px; display: block;"> Employee:  ${e.data.split("-")[0]} </p>
-                    `;
-                }
-
                 if(response === "fromThem") {
                     document.getElementById("messages").innerHTML += `
-                    <p style = "margin-left: 5px; display: block;"> Me:  ${e.data.split("-")[0]} </p>
-                    `;
+                    <div class="bubbleWrapper">
+                    <div class="inlineContainer">
+                    <img class="inlineIcon" src="https://cdn1.iconfinder.com/data/icons/ninja-things-1/1772/ninja-simple-512.png">
+                    <div class="otherBubble other">
+                    Me: ${e.data.split("-")[0]}
+                    </div>
+                    </div>
+                    <span class="other">08:41</span>
+                    </div>`;
                 }
 
-            };
+                if(response === "fromMe") {
+                    document.getElementById("messages").innerHTML += `
+                    <div class="bubbleWrapper">
+		            <div class="inlineContainer own">
+			        <img class="inlineIcon" src="https://www.pinclipart.com/picdir/middle/205-2059398_blinkk-en-mac-app-store-ninja-icon-transparent.png">
+			        <div class="ownBubble own">
+                    Employee: ${e.data.split("-")[0]}
+			        </div>
+		            </div><span class="own">08:55</span>
+	                </div>`;
+                }
+
+            }
 
         }
 
         document.getElementById("sendMessage").onclick = () => { 
-            sendMessage(document.getElementById("myMessage").value);
+            sendMessage(document.getElementById("myMessage"));
         }
 
         sendMessage = (v) => {
-            conn.send(v);
+            conn.send(v.value);
+            v.value = "";
+            v.focus();
         }
 
         </script>
