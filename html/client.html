@@ -61,6 +61,12 @@
                     return;
                 }
 
+                if(e.data === "remove this client") {
+                    conn.close();
+                    alert("your instance has closed");
+                    return;
+                }
+
                 let response = e.data.split("-")[1];
 
                 if(response === "fromMe") {

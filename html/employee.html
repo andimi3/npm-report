@@ -630,7 +630,7 @@
 
                     }
 
-                    conn.send("removeSingleClient-"+clientId); //kill their instance... add this in
+                    conn.send(`removeSingleClient-${clientId}`); //kill their instance... add this in
 
                     document.getElementById(`${clientId}-identitySet`).remove();
 
@@ -667,7 +667,6 @@
             //to stop this on refresh just add a param on send message when conn close to kill their instance on their side until i find out why
             //REMOVE IF STATEMENT BELOW IF YOU WANT WORKING ON REFRESH RESULTS...
             //if((!clientArray.includes(parseInt(e.data.split("-")[1]))) && (!blocked.includes(parseInt(e.data.split("-")[1]))) && (!mergeSafe.includes(parseInt(e.data.split("-")[1])))) { return } <-- on message
-
 
             //video
             //kill[murder][slaughter][permanently terminate][massacre][assasinate][liquidate][end forever] any exixsting rtc connections (theres and mine) or just keep mine the same and change params on mine for their side { me me me, [them them them] <- update }

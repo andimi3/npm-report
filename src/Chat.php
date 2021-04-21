@@ -70,12 +70,27 @@ class Chat implements MessageComponentInterface {
         $myMessage = null;
         $ifEmployeeMessage = explode("-", $msg);
 
+        //if removing singleClientConnection
+        if($ifEmployeeMessage[0] == "removeSingleClient") {
+           $this->clients[$ifEmployeeMessage[1]]->send("remove this client");
+           return;
+        }         
+
         //if message coming from employee
         if(isset($ifEmployeeMessage[2]) && $ifEmployeeMessage[2] == $this->employee) {
             $myMessage = $ifEmployeeMessage[0];
             $clientId = $ifEmployeeMessage[1];
         }    
 
+
+        //replace below loop with pointing instead. whoops
+        
+
+
+
+
+
+        //so you dont need to loop here ... you can just point to their resource id... /: doesnt matter
         foreach ($this->clients as $client) {
 
             //if message from client send to client
@@ -111,10 +126,10 @@ class Chat implements MessageComponentInterface {
 
         //if employee disconnects, disconnect everyone
         if($conn->resourceId == $this->employeResourceId) {
-            echo "employee should be disconnecting all clients and them self (WHY IS IT NOT!)!";
             foreach ($this->clients as $client) {
                 $this->clients->detach($client);
                 $client->close();
+                $client->send("remove this client");
             }
             return;
         }
@@ -122,10 +137,10 @@ class Chat implements MessageComponentInterface {
         //if client disconnects while employee online, send employee resource id to update dasboard
         foreach ($this->clients as $client) {
             if($this->clients[$client] == "employee") { 
-                //if this client isset in the splobkect remove array. i am not sure why but the client seems not to remove when i refresh my screen causing when a client closes a connection to basically overwrite the connection i had already closed. if i close it...this should not be hit
                 $client->send("removeFromArray-".$conn->resourceId);
                 $this->clients->detach($conn);
                 $conn->close();
+                $client->send("remove this client");
                 return;
             }
         }
@@ -141,6 +156,7 @@ class Chat implements MessageComponentInterface {
             foreach ($this->clients as $client) {
                     $this->clients->detach($client);
                     $client->close();
+                    $client->send("remove this client");
             }
             return;
         }
@@ -150,6 +166,7 @@ class Chat implements MessageComponentInterface {
             if($this->clients[$client] == "employee") { 
                 $client->send("removeFromArray-".$conn->resourceId);
                 $conn->close();
+                $client->send("remove this client");
                 return;
             }
         }
