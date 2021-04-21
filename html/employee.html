@@ -499,21 +499,31 @@
 
                             document.getElementById("mergeBody").innerHTML = "";
 
+                            let divElement = document.createElement("DIV");
+
                             for(let i = 0; i < mergeSafe.length; i++) {
 
                                 if(mergeSafe[i].id === currentClientId) { 
                                     continue; 
                                 }
 
-                                document.getElementById("mergeBody").innerHTML += `
-                                <div class="form-check">
-                                    <input class="form-check-input pushMergedIds" type="checkbox" value="" id="flexCheckDefault" value "${mergeSafe[i].id}">
-                                    <label class="form-check-label" for="flexCheckDefault" style = "margin-bottom: 3px">
-                                    Name: ${mergeSafe[i].name} Id: ${mergeSafe[i].id}
-                                    </label>
-                                </div>`;
+                                divElement.classList.add("form-check");
+                                let input = document.createElement("INPUT");
+                                input.classList.add("form-check-input", "pushMergedIds");
+                                input.type = "checkbox";
+                                input.value = mergeSafe[i].id;
+                                let label = document.createElement("label");
+                                label.classList.add("form-check-label");
+                                label.style.marginBottom = "3px";
+                                label.innerText = `Name: ${mergeSafe[i].name} Id: ${mergeSafe[i].id}`;
+                                let br = document.createElement("BR");
+                                divElement.appendChild(input);
+                                divElement.appendChild(br);
+                                divElement.appendChild(label);
 
                             }
+
+                            document.getElementById("mergeBody").append(divElement);
 
                             $('#mergeModal').modal('show');
 
@@ -570,6 +580,10 @@
                     document.getElementById("tlError").innerText = "You have successfully merged!";
                     document.getElementById("tlError").style.color = "green";
 
+                    switchClient(currentClientId);
+
+                    $('#mergeModal').modal('close');
+
                 }
 
                 /**
@@ -608,9 +622,13 @@
                     }
 
                     if(ifMerge === "not merging") {
+
                         for(let i = 0; i < messageArray.length; i++) {
                             if(parseInt(messageArray[i].clientId) === clientId) { messageArray.splice(i, 1); }
                         }
+
+                        switchClient(clientArray[0]);
+
                     }
 
                     conn.send("removeSingleClient-"+clientId);
@@ -649,8 +667,9 @@
 
             //we're gonna throw em some php and see how they react. lets see all the remarks they make
             //hate it before you scrolled down i already forgave ya - j cole
-            //we are now administering our scroll test.
+            //we are now administering our scroll test. begin. steve you have failed the scroll test
             //https://www.youtube.com/watch?v=WFoZJrZrL8w
+    
 
             //BUG: when a client disconnects after i have disconnected everyone(from refreshing) they are sending me over an id that i am removing from an array. 
             //to stop this on refresh just add a param on send message when conn close to kill their instance on their side until i find out why
