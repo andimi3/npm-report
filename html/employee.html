@@ -631,9 +631,11 @@
                         let w = clientArray[0] ? clientArray[0] : false;
                         w ? switchClient(w) : console.log("client array is empty");
 
+                        conn.send(`removeSingleClient-${clientId}`); //kill their instance... add this in
+
                     }
 
-                    conn.send(`removeSingleClient-${clientId}`); //kill their instance... add this in
+            
 
                     document.getElementById(`${clientId}-identitySet`).remove();
 
