@@ -73,13 +73,16 @@ class Chat implements MessageComponentInterface {
 
         //if removing singleClientConnection instance from their side cause it doesnt die for whatever reason. 
         if($ifEmployeeMessage[0] == "removeSingleClient") {
+
             foreach ($this->clients as $client) { 
                 if($client->resourceId == $ifEmployeeMessage[1]) {
                     $client->send("remove this client");
                     break;
                 }    
             }
+
            return;
+
         }         
 
         //if message coming from employee -- just send in here
@@ -138,12 +141,14 @@ class Chat implements MessageComponentInterface {
 
         //if client disconnects while employee online, send employee resource id to update dasboard
         foreach ($this->clients as $client) {
+
             if($this->clients[$client] == "employee") { 
                 $client->send("removeFromArray-".$conn->resourceId);
                 $this->clients->detach($conn);
                 $conn->close();
                 return;
             }
+
         }
 
         echo "error: employee not online and person disconnected OR THIS IS THERE FIRST ATTEMPT CONNECTION";
@@ -151,6 +156,8 @@ class Chat implements MessageComponentInterface {
     }
 
     public function onError(ConnectionInterface $conn, \Exception $e) {
+
+        echo "errorrrrrrrrrrrrrrrrrrr";
 
         //if employee disconnects, disconnect everyone
         if($conn->resourceId == $this->employeResourceId) {
@@ -168,12 +175,14 @@ class Chat implements MessageComponentInterface {
 
         //if client error, rmeove array on employee end and update dashboard
         foreach ($this->clients as $client) {
+
             if($this->clients[$client] == "employee") { 
                 $client->send("removeFromArray-".$conn->resourceId);
                 $this->clients->detach($conn);
                 $conn->close();
                 return;
             }
+
         }
 
         echo "error: employee not online and person disconnected OR THIS IS THERE FIRST ATTEMPT CONNECTION";

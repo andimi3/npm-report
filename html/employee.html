@@ -251,9 +251,15 @@
                     }
 
                     if(e.data.split("-")[0] === "removeFromArray") { 
-                        clientArray.splice(clientArray.indexOf(parseInt(e.data.split("-")[1])), 1);
+
+                        if(clientArray.indexOf(parseInt(e.data.split("-")[1])) !== -1) {
+                            clientArray.splice(clientArray.indexOf(parseInt(e.data.split("-")[1])), 1);
+                        }
+
                         elem("remove", e.data.split("-")[1], null);
+
                         return;
+
                     }
 
                     if(e.data.split("-")[0] === "employeeConnected") { 
@@ -272,6 +278,7 @@
                     }
 
                     if((!clientArray.includes(parseInt(e.data.split("-")[1]))) && (!blocked.includes(parseInt(e.data.split("-")[1]))) && (!mergeSafe.includes(parseInt(e.data.split("-")[1])))) {
+                        alert("why");
                         return;
                     }
 
@@ -342,7 +349,7 @@
                                     <div class="flex-grow-1 ml-3">
                                         <span class = "clientNames" id = "${id}-clientName" >${name.trim()}</span>
                                     <div class="small"><span class="fas fa-circle chat-online"></span><b id = "${id}-online">Online</b><b id = "${id}-blocked"></b></div>
-                                    </div>
+                                </div>
                                 </div>
                             </div>`;
                     }
@@ -605,10 +612,6 @@
 
                 deleteThisPerson = (clientId, ifMerge) => {
 
-                    if(clientArray.indexOf(clientId) !== -1) {
-                        clientArray.splice(clientArray.indexOf(clientId), 1);
-                    }
-
                     if(blocked.indexOf(clientId) !== -1) {
                         blocked.splice(blocked.indexOf(clientId), 1);
                     }
@@ -633,6 +636,12 @@
                     conn.send(`removeSingleClient-${clientId}`); //kill their instance... add this in
 
                     document.getElementById(`${clientId}-identitySet`).remove();
+
+                    console.log("----------------------------------------------------------------------------on delete: " + ClientId);
+                    console.log("client array " + clientArray);
+                    console.log("blocked " + blocked);
+                    console.log("merge safe " + mergeSafe);
+                    console.log("message array " + messageArray);
 
                  }
 
@@ -663,7 +672,7 @@
 
             })();
 
-            //BUG: when removing a single instance, the previous instance added gets removed as well.. weird but i will fix
+            //BUG: when removing a single instance, the last instance in some set gets removed as well.. weird but i will fix. FIXED:  was splicing on the delete and onmessage which caused last valie to delete because i am not using indexOf. should just splice everywhere
 
             //video
             //kill[murder][slaughter][permanently terminate][massacre][assasinate][liquidate][end forever] any exixsting rtc connections (theres and mine) or just keep mine the same and change params on mine for their side { me me me, [them them them] <- update }
