@@ -277,10 +277,10 @@
                         return;
                     }
 
+                    //should not be hit at all because i am killing there instance
                     if((!clientArray.includes(parseInt(e.data.split("-")[1]))) && (!blocked.includes(parseInt(e.data.split("-")[1]))) && (!mergeSafe.includes(parseInt(e.data.split("-")[1])))) {
-                        alert("why");
                         return;
-                    }
+                    } 
 
                     var today = new Date();
                     var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
@@ -636,12 +636,6 @@
                     conn.send(`removeSingleClient-${clientId}`); //kill their instance... add this in
 
                     document.getElementById(`${clientId}-identitySet`).remove();
-
-                    console.log("----------------------------------------------------------------------------on delete: " + ClientId);
-                    console.log("client array " + clientArray);
-                    console.log("blocked " + blocked);
-                    console.log("merge safe " + mergeSafe);
-                    console.log("message array " + messageArray);
 
                  }
 
