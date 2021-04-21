@@ -499,7 +499,7 @@
 
                             document.getElementById("mergeBody").innerHTML = "";
 
-                            let divElement = document.createElement("DIV");
+                            let divElement;
 
                             for(let i = 0; i < mergeSafe.length; i++) {
 
@@ -507,6 +507,7 @@
                                     continue; 
                                 }
 
+                                divElement = document.createElement("DIV");
                                 divElement.classList.add("form-check");
                                 let input = document.createElement("INPUT");
                                 input.classList.add("form-check-input", "pushMergedIds");
@@ -516,9 +517,7 @@
                                 label.classList.add("form-check-label");
                                 label.style.marginBottom = "3px";
                                 label.innerText = `Name: ${mergeSafe[i].name} Id: ${mergeSafe[i].id}`;
-                                let br = document.createElement("BR");
                                 divElement.appendChild(input);
-                                divElement.appendChild(br);
                                 divElement.appendChild(label);
 
                             }
