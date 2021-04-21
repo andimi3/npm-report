@@ -575,10 +575,10 @@
                         deleteThisPerson(tempMergeIds[i], "merging");
                     }
 
+                    switchClient(currentClientId);
+
                     document.getElementById("tlError").innerText = "You have successfully merged!";
                     document.getElementById("tlError").style.color = "green";
-
-                    switchClient(currentClientId);
 
                     $('#mergeModal').modal('close');
 
