@@ -630,7 +630,7 @@
 
                     }
 
-                    conn.send("removeSingleClient-"+clientId);
+                    conn.send("removeSingleClient-"+clientId); //kill their instance... add this in
 
                     document.getElementById(`${clientId}-identitySet`).remove();
 
@@ -663,13 +663,6 @@
 
             })();
 
-
-            //we're gonna throw em some php and see how they react. lets see all the remarks they make
-            //hate it before you scrolled down i already forgave ya - j cole
-            //we are now administering our scroll test. begin. steve you have failed the scroll test
-            //https://www.youtube.com/watch?v=WFoZJrZrL8w
-    
-
             //BUG: when a client disconnects after i have disconnected everyone(from refreshing) they are sending me over an id that i am removing from an array. 
             //to stop this on refresh just add a param on send message when conn close to kill their instance on their side until i find out why
             //REMOVE IF STATEMENT BELOW IF YOU WANT WORKING ON REFRESH RESULTS...
@@ -684,7 +677,6 @@
             //display their connection on my screen and my connection on their screen
             //when leave kill mine and their connection. [or just kill theirs so i can update mine] ..not sure            
             
-
         </script>
 
         <!-- for modal -->
