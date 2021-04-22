@@ -292,6 +292,11 @@
 
                     }
 
+                    if(e.data.split("-")[0] === "37uiudnjd" && currentClientId !== parseInt(e.data.split("-")[1])) {
+                        console.log("other person typing... push to side bar");
+                        return;
+                    }
+
                     if((!clientArray.includes(parseInt(e.data.split("-")[1]))) && (!blocked.includes(parseInt(e.data.split("-")[1]))) && (!mergeSafe.includes(parseInt(e.data.split("-")[1])))) {
                         return;
                     } 
