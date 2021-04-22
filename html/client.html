@@ -99,12 +99,12 @@
 
     <div id = "showChat" style = "position: fixed; bottom: 0; width: 100%; overflow: hidden;" hidden>
 
-        <div id = "messages" style = "height: 90vh; overflow-y: scroll">
+        <div id = "messages" style = "height: 75vh; overflow-y: scroll">
 
         </div>
 
         <div class = "row">
-            <div class="col-12" style = "padding: 0px; font-size: 98px; margin-left: 10px" id = "mainTyping">
+            <div class="col-12" style = "padding: 0px; font-size: 98px; margin-left: 75px" id = "mainTyping">
             </div>
             <div class="col-8" style = "padding: 0px;">
                 <input id = "myMessage" class = "form-control" placeholder = "enter message" style = "width: 100%; height: 60px; padding: 20px; font-size: 24px; outline: none">
@@ -130,7 +130,21 @@
 
         let contentSplit = false; //if you want to toggle this to pop up a message of them typing - you have to do some "ish" though and im not doing that
 
-        document.getElementById("submitName").onclick = () => { beginChat(document.getElementById("name").value); }
+        document.getElementById("submitName").onclick = () => { 
+            beginChat(document.getElementById("name").value); 
+        }
+
+        document.getElementById("sendMessage").onclick = () => { 
+            sendMessage(document.getElementById("myMessage"));
+        }
+
+        document.getElementById("myMessage").onkeyup = () => {
+            typing("37uiudnjd");
+        }
+
+        document.getElementById("exit").onclick = () => { 
+            exit();
+        }  
 
         beginChat = (name) => {
 
@@ -218,18 +232,10 @@
 	                </div>`;
                 }
 
-                document.getElementById("mainTyping").innerText += "";
+                document.getElementById("mainTyping").innerText = "";
 
             }
 
-        }
-
-        document.getElementById("sendMessage").onclick = () => { 
-            sendMessage(document.getElementById("myMessage"));
-        }
-
-        document.getElementById("myMessage").onkeyup = () => {
-            typing("37uiudnjd");
         }
 
         typing = (v) => {
@@ -240,11 +246,7 @@
             conn.send(v.value);
             v.value = "";
             v.focus();
-        }
-
-        document.getElementById("exit").onclick = () => { 
-            exit();
-        }        
+        }      
 
         exit = () => {
             conn.close();
