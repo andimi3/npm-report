@@ -143,6 +143,8 @@
                 }
 
                 conn = new WebSocket(`ws://localhost:8082?employee=${name}`); //either client or employee ... passcode on employee
+    
+                checkError();
 
                 listen();
 
@@ -225,6 +227,14 @@
             alert("your instance has closed");
             document.getElementById("showName").hidden = false;
             document.getElementById("showChat").hidden = true;
+        }
+
+        checkError = () => {
+            conn.onerror = () => {
+                alert("There is no employee online to answer your questions. Please refer to our contact form. Thank you"); 
+                document.getElementById("showName").hidden = false;
+                document.getElementById("showChat").hidden = true;
+            }
         }
 
         </script>

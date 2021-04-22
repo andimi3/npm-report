@@ -188,7 +188,7 @@
                 /**
                  * program that toggles between connected clients so you can send messages
                  * for each client you are conected with you may export messages, merge messages - block people - delete messages and video chat
-                 * if you dont want to use a third party service, spin the "client.html" up on home page and modify it and put "employee.html" on your back end somewhere and execute a shell command
+                 * if you dont want to use a third party service, spin the "client.html" up on home page and modify it and put "employee.html" on your side that no one can see somewhere and execute a shell command like ratchet.io shows to run
                  */
 
                 console.log("page has been refreshed");
@@ -578,13 +578,9 @@
                         } 
                     }
 
-                    console.log(mergeSafe.length + " merge safe before");
-
                     for(let i = 0; i < tempMergeIds.length; i++) {
                         deleteThisPerson(tempMergeIds[i], "merging");
                     }
-
-                    console.log(mergeSafe.length + " merge safe after");
 
                     switchClient(currentClientId);
 
@@ -679,8 +675,8 @@
             //send a message that generates their rtc and attach my id'd rtc connection. -> display on their screen (generate and config for both sides)
             //send back their id'd rtc connection to attach to mine
             //display their connection on my screen and my connection on their screen
-            //when leave kill mine and their connection. [or just kill theirs so i can update mine] ..not sure            
-            
+            //when leave kill mine and their connection. [or just kill theirs so i can update mine] ..not sure     
+                        
         </script>
 
         <!-- for modal -->
