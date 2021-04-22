@@ -531,7 +531,7 @@
                                     continue; 
                                 }
 
-                                c++; // <-- language of choice ...shick beanies
+                                c++;
 
                                 divElement = document.createElement("DIV");
                                 divElement.classList.add("form-check");
@@ -552,6 +552,7 @@
                             if(c === 0) {
                                 document.getElementById("tlError").innerText = "There are no offline conversations to merge"; 
                                 document.getElementById("tlError").style.color = "red"; 
+                                return;
                             }
 
                             $('#mergeModal').modal('show');
@@ -699,8 +700,6 @@
                 }
 
             })();
-
-            //BUG: WHEN YOU SEND A MESSAGE WITH TAB IT SENDS ANOTHER KEYUP
 
             //video
             //kill.murder.slaughter.permanentlyTerminate.massacre.assasinate.liquidate.endForever() any exixsting rtc connections (theres and mine) or just keep mine the same and change params on mine for their side { me me me, [them them them] <- update }
