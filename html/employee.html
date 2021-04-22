@@ -656,9 +656,7 @@
                             if(parseInt(messageArray[i].clientId) === clientId) { messageArray.splice(i, 1); }
                         }
 
-                        let w = clientArray[0] ? clientArray[0] : false;
-                        w ? switchClient(w) : console.log("client array is empty");
-
+                        clientArray[0] ? switchClient(clientArray[0]) : console.log("client array is empty"); //possibly empty messages
                         conn.send(`removeSingleClient-${clientId}`); //kill their instance... add this in
 
                     }
