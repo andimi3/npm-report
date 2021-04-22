@@ -521,7 +521,7 @@
                                     continue; 
                                 }
 
-                                c++;
+                                c++; // <-- language of choice ...shick beanies
 
                                 divElement = document.createElement("DIV");
                                 divElement.classList.add("form-check");
@@ -684,6 +684,7 @@
                  */
 
                 typing = (v) => {
+                    if(blocked.includes(currentClientId)) { return; }
                     conn.send(`${v}-${currentClientId}-${employeePassword}`);
                 }
 
