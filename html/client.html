@@ -104,7 +104,7 @@
         </div>
 
         <div class = "row">
-            <div class="col-12" style = "padding: 0px; font-size: 98px; margin-left: 75px" id = "mainTyping">
+            <div class="col-12" style = "padding: 0px; font-size: 48px; margin-left: 75px" id = "mainTyping">
             </div>
             <div class="col-8" style = "padding: 0px;">
                 <input id = "myMessage" class = "form-control" placeholder = "enter message" style = "width: 100%; height: 60px; padding: 20px; font-size: 24px; outline: none">
@@ -138,7 +138,7 @@
             sendMessage(document.getElementById("myMessage"));
         }
 
-        document.getElementById("myMessage").onkeyup = () => {
+        document.getElementById("myMessage").onkeydown = () => {
             typing("37uiudnjd");
         }
 
@@ -233,17 +233,21 @@
                     document.getElementById("mainTyping").innerText = "";
                 }
 
-                
+                var element = document.getElementById("messages");
+                element.scrollTop = element.scrollHeight;
 
+                
             }
 
         }
 
         typing = (v) => {
+            if(v === "") { return; }
             conn.send(v);
         }
 
         sendMessage = (v) => {
+            if(v.value === "") { return; }
             conn.send(v.value);
             v.value = "";
             v.focus();
@@ -258,9 +262,9 @@
 
         checkError = () => {
             conn.onerror = () => {
-                alert("There is no employee online to answer your questions. Please refer to our contact form. Thank you"); 
-                document.getElementById("showName").hidden = false;
-                document.getElementById("showChat").hidden = true;
+            alert("There is no employee online to answer your questions. Please refer to our contact form. Thank you"); 
+            document.getElementById("showName").hidden = false;
+            document.getElementById("showChat").hidden = true;
             }
         }
 
