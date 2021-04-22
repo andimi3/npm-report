@@ -275,6 +275,10 @@
                         return;
                     }
 
+                    if(e.data.split("-")[0] === "37uiudnjd" && e.data.split("-")[2] !== "fromThem") {
+                        return;
+                    }
+
                     if(e.data.split("-")[0] === "37uiudnjd" && currentClientId === parseInt(e.data.split("-")[1]) && e.data.split("-")[2] === "fromThem") { 
 
                         if(parseInt(document.getElementById("mainTyping").innerText.trim().length) === 6) { 
@@ -285,7 +289,7 @@
                         document.getElementById("mainTyping").innerText += "."; //animation would be better
 
                         return;
-                        
+
                     }
 
                     //should not be hit at all because i am killing there instance
