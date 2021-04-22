@@ -508,11 +508,15 @@
 
                             let divElement;
 
+                            let c = 0;
+
                             for(let i = 0; i < mergeSafe.length; i++) {
 
                                 if(mergeSafe[i].id === currentClientId) { 
                                     continue; 
                                 }
+
+                                c++;
 
                                 divElement = document.createElement("DIV");
                                 divElement.classList.add("form-check");
@@ -528,6 +532,11 @@
                                 divElement.appendChild(label);
                                 document.getElementById("mergeBody").append(divElement);
 
+                            }
+
+                            if(c === 0) {
+                                document.getElementById("tlError").innerText = "There are no offline conversations to merge"; 
+                                document.getElementById("tlError").style.color = "red"; 
                             }
 
                             $('#mergeModal').modal('show');
