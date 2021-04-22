@@ -236,6 +236,10 @@
                     sendMessage(document.getElementById("myMessage"));
                 }
 
+                document.getElementById("myMessage").onkeyup = () => {
+                    typing("37uiudnjd");
+                }
+
                 
                 /**
                  * on message connect clients, disconnect clients, show and push messages for clients...ect
@@ -272,8 +276,8 @@
                     }
 
                     if(e.data.split("-")[0] === "37uiudnjd" && currentClientId === parseInt(e.data.split("-")[1])) { 
-                        if(parseInt(document.getElementById("mainTyping").innerText.trim().length) === 3) { document.getElementById("mainTyping").innerText = ""; return;  }
-                        document.getElementById("mainTyping").innerText += ".";
+                        if(parseInt(document.getElementById("mainTyping").innerText.trim().length) === 6) { document.getElementById("mainTyping").innerText = ""; return;  }
+                        document.getElementById("mainTyping").innerText += "."; //animation would be better
                         return;
                     }
 
@@ -323,6 +327,7 @@
                         }
 
                         var element = document.getElementById("messagesByName");
+                        document.getElementById("mainTyping").innerText = "";  
                         element.scrollTop = element.scrollHeight;
                         return;
 
@@ -330,7 +335,7 @@
 
                     if(e.data.split("-")[2] === "fromThem") { 
                         document.getElementById(`${e.data.split("-")[1]}-chatCount`).innerText = parseInt(document.getElementById(`${e.data.split("-")[1]}-chatCount`).innerText.trim()) + 1;
-                     }
+                     }   
 
                 }
 
@@ -672,6 +677,14 @@
                     conn.send(`${v.value}-${currentClientId}-${employeePassword}`);
                     v.value = "";
                     v.focus();
+                }
+                
+                /**
+                 * employee typing to client
+                 */
+
+                typing = (v) => {
+                    conn.send(`${v}-${currentClientId}-${employeePassword}`);
                 }
 
             })();

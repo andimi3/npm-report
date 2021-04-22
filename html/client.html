@@ -104,6 +104,8 @@
         </div>
 
         <div class = "row">
+            <div class="col-12" style = "padding: 0px; font-size: 98px; margin-left: 10px" id = "mainTyping">
+            </div>
             <div class="col-8" style = "padding: 0px;">
                 <input id = "myMessage" class = "form-control" placeholder = "enter message" style = "width: 100%; height: 60px; padding: 20px; font-size: 24px; outline: none">
             </div>
@@ -125,6 +127,8 @@
         let conn = null;
 
         let gName = null;
+
+        let contentSplit = false; //if you want to toggle this to pop up a message of them typing - you have to do some "ish" though and im not doing that
 
         document.getElementById("submitName").onclick = () => { beginChat(document.getElementById("name").value); }
 
@@ -179,6 +183,16 @@
 
                 let response = e.data.split("-")[1];
 
+                if(e.data.split("-")[0] == "37uiudnjd" && response === "fromThem") {
+                    return;
+                }
+
+                if(e.data.split("-")[0] == "37uiudnjd" && response === "fromMe") {
+                    if(parseInt(document.getElementById("mainTyping").innerText.trim().length) === 6) { document.getElementById("mainTyping").innerText = ""; return;  }
+                    document.getElementById("mainTyping").innerText += ".";
+                    return;
+                }
+
                 if(response === "fromThem") {
                     document.getElementById("messages").innerHTML += `
                     <div class="bubbleWrapper">
@@ -204,12 +218,22 @@
 	                </div>`;
                 }
 
+                document.getElementById("mainTyping").innerText += "";
+
             }
 
         }
 
         document.getElementById("sendMessage").onclick = () => { 
             sendMessage(document.getElementById("myMessage"));
+        }
+
+        document.getElementById("myMessage").onkeyup = () => {
+            typing("37uiudnjd");
+        }
+
+        typing = (v) => {
+            conn.send(v);
         }
 
         sendMessage = (v) => {
