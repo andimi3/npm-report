@@ -148,33 +148,33 @@
 
         beginChat = (name) => {
 
-                gName = name;
+            gName = name;
 
-                try {
+            try {
                     
-                    conn.close();
+                conn.close();
 
-                } catch {
+            } catch {
 
-                    console.log("no connection yet");
-
-                }
-
-                conn = new WebSocket(`ws://localhost:8082?employee=${name}`); //either client or employee ... passcode on employee
-    
-                checkError();
-
-                listen();
-
-                document.getElementById("showName").hidden = true;
-
-                document.getElementById("showChat").hidden = false;
-
-                document.getElementById("name").value = "";
-
-                document.getElementById("messages").innerHTML = ``;
+                console.log("no connection yet");
 
             }
+
+            conn = new WebSocket(`ws://localhost:8082?employee=${name}`); //either client or employee ... passcode on employee
+    
+            checkError();
+
+            listen();
+
+            document.getElementById("showName").hidden = true;
+
+            document.getElementById("showChat").hidden = false;
+
+            document.getElementById("name").value = "";
+
+            document.getElementById("messages").innerHTML = ``;
+
+        }
 
         listen = () => {
 
