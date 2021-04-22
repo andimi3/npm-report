@@ -261,7 +261,6 @@
                         }
 
                         elem("remove", e.data.split("-")[1], null);
-
                         return;
 
                     }
@@ -287,7 +286,6 @@
                         }
 
                         document.getElementById("mainTyping").innerText += "."; 
-
                         return;
 
                     }
@@ -700,7 +698,7 @@
                  */
 
                 typing = (v) => {
-                    if(blocked.includes(currentClientId) ||v === "" ) { return; }
+                    if(blocked.includes(currentClientId) || v === "" ) { return; }
                     conn.send(`${v}-${currentClientId}-${employeePassword}`);
                 }
 
